@@ -4,7 +4,6 @@ import { useCamera } from './hooks/useCamera';
 import { useDetection } from './hooks/useDetection';
 import { loadProducts, loadClassMappings } from './services/productService';
 import { YoloDetectionService } from './services/yoloDetectionService';
-import { CONFIG } from './config';
 import { CameraView } from './components/CameraView';
 import { DetectionOverlay } from './components/DetectionOverlay';
 import { InfoPanel } from './components/InfoPanel';
@@ -22,13 +21,7 @@ export default function App() {
   });
 
   const yoloService = useMemo(
-    () =>
-      CONFIG.useYoloDetection
-        ? new YoloDetectionService({
-            threshold: CONFIG.yoloDetectionThreshold,
-            modelFileName: CONFIG.yoloModelFile,
-          })
-        : null,
+    () => new YoloDetectionService(),
     []
   );
 
@@ -37,7 +30,7 @@ export default function App() {
     videoRef,
     canvasRef,
     enabled: ready,
-    service: yoloService ?? undefined,
+    service: yoloService,
   });
 
   // Load product data on mount

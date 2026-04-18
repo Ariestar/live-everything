@@ -1,27 +1,14 @@
 import { useRef, useCallback, useEffect } from 'react';
-import { DetectionResult, TrackedObject, DetectionService } from '../types/detection';
+import { TrackedObject, DetectionService } from '../types/detection';
 import { CONFIG } from '../config';
 import { useAppStore } from '../store/useAppStore';
 import { matchDetectionToProduct, pickPrimaryDetection } from '../services/matchingService';
-
-// Stub detection service — replace with real YOLO implementation
-class StubDetectionService implements DetectionService {
-  async initialize(): Promise<void> {
-    console.log('[detection] Stub service initialized. Plug in YOLO here.');
-  }
-  async detect(_frame: ImageData): Promise<DetectionResult[]> {
-    return [];
-  }
-  dispose(): void {
-    console.log('[detection] Stub service disposed.');
-  }
-}
 
 interface UseDetectionOptions {
   videoRef: React.RefObject<HTMLVideoElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
   enabled: boolean;
-  service?: DetectionService;
+  service: DetectionService;
 }
 
 export function useDetection({
@@ -30,13 +17,11 @@ export function useDetection({
   enabled,
   service,
 }: UseDetectionOptions) {
-  const detectionService = useRef<DetectionService>(
-    service ?? new StubDetectionService()
-  );
+  const detectionService = useRef<DetectionService>(service);
 
-  // Keep ref in sync when the prop changes (e.g. YOLO service replaces stub)
+  // Keep ref in sync if the service instance changes
   useEffect(() => {
-    if (service && service !== detectionService.current) {
+    if (service !== detectionService.current) {
       detectionService.current.dispose();
       detectionService.current = service;
     }
