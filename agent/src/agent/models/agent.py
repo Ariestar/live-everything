@@ -8,7 +8,9 @@ from .knowledge import ProductKnowledge
 
 class AgentConfig(BaseModel):
     """Configuration for creating an agent."""
-    product_id: str
+    product_id: str = ""
+    semantic_category_id: str = ""
+    object_label: str = ""
     system_prompt: str = ""
     max_history: int = 30
     temperature: float = 0.7
@@ -17,8 +19,10 @@ class AgentConfig(BaseModel):
 class AgentState(BaseModel):
     """Runtime state of a single agent."""
     agent_id: str
-    product_id: str
+    product_id: str = ""
     product_name: str = ""
+    semantic_category_id: str = ""
+    object_label: str = ""
     status: AgentStatus = AgentStatus.IDLE
     history: List[Message] = []
     created_at: float = Field(default_factory=time.time)
@@ -58,6 +62,8 @@ class AgentSummary(BaseModel):
     agent_id: str
     product_id: str
     product_name: str
+    semantic_category_id: str = ""
+    object_label: str = ""
     status: AgentStatus
     message_count: int
     created_at: float

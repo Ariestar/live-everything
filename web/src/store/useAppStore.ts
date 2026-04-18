@@ -34,6 +34,10 @@ interface AppStore {
   qaHistory: Array<{ q: string; a: string }>;
   addQA: (q: string, a: string) => void;
 
+  // Model status
+  modelStatus: 'idle' | 'loading' | 'ready' | 'error';
+  setModelStatus: (s: 'idle' | 'loading' | 'ready' | 'error') => void;
+
   // Device status
   cameraReady: boolean;
   setCameraReady: (r: boolean) => void;
@@ -75,6 +79,9 @@ export const useAppStore = create<AppStore>((set) => ({
   qaHistory: [],
   addQA: (q, a) =>
     set((s) => ({ qaHistory: [...s.qaHistory, { q, a }] })),
+
+  modelStatus: 'idle',
+  setModelStatus: (s) => set({ modelStatus: s }),
 
   cameraReady: false,
   setCameraReady: (r) => set({ cameraReady: r }),

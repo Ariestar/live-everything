@@ -1,0 +1,88 @@
+{
+  "_说明": "复制此文件并重命名为 <product_id>.json，填入你的定制化商品信息。带 _说明 前缀的字段仅供参考，正式使用时可删除。",
+
+  "product_id": "你的商品唯一ID，例如 my-product-001",
+  "product_name": "商品名称",
+  "category_id": "所属业务分类，自定义",
+  "semantic_category_id": "匹配 categories.json 中的类别 ID，例如 drinkware、computing_device",
+  "persona_profile_id": "匹配 personas.json 中的人格 ID，例如 persona_drinkware",
+  "identity_level": "specific_demo_product",
+  "aliases": ["别名1", "别名2"],
+
+  "tagline": "一句话定位，给展示窗用。",
+  "one_line_hook": "第一人称的一句话自我介绍钩子。",
+  "self_intro_short": "15 秒内能读完的短介绍。",
+  "self_intro_medium": "30 秒内能读完的中等介绍。",
+  "story_monologue_90s": "90 秒的第一人称讲述，适合语音问答或导览场景。",
+
+  "visual_identity": {
+    "shape_language": "外观形态描述",
+    "material_impression": "材质印象",
+    "notable_cues": ["视觉辨识线索1", "视觉辨识线索2"]
+  },
+
+  "core_values": ["核心价值1", "核心价值2", "核心价值3"],
+
+  "selling_points": [
+    {
+      "title": "卖点标题",
+      "detail": "卖点详细描述",
+      "scene_value": "在什么场景下这个卖点有价值"
+    }
+  ],
+
+  "specs": [
+    { "name": "参数名", "value": "参数值" }
+  ],
+
+  "audience": ["目标人群1", "目标人群2"],
+  "use_cases": ["使用场景1", "使用场景2"],
+
+  "guided_demo_script": [
+    { "step": "识别完成开场", "line": "开场语句" },
+    { "step": "长按后展开介绍", "line": "展开语句" },
+    { "step": "引导继续提问", "line": "引导语句" }
+  ],
+
+  "limitations": ["使用限制1", "使用限制2"],
+  "care_tips": ["保养建议1", "保养建议2"],
+  "common_misunderstandings": ["常见误区1"],
+
+  "question_type_answers": {
+    "intro": "介绍类问题的回答",
+    "selling_point": "卖点类问题的回答",
+    "use_case": "场景类问题的回答",
+    "spec": "参数类问题的回答",
+    "comparison": "对比类问题的回答",
+    "limitation": "限制类问题的回答",
+    "unknown": "未知类问题的兜底回答"
+  },
+
+  "follow_up_questions": ["引导用户继续提问的句子1", "引导用户继续提问的句子2"],
+
+  "faq": [
+    { "question": "用户可能会问的问题", "answer": "对应回答" }
+  ],
+
+  "product_extension": {
+    "merchandising_angle": "营销角度描述",
+    "demo_focus": "演示重点"
+  },
+
+  "museum_extension": {
+    "enabled": false,
+    "_说明_启用博物馆模式后可填以下字段": true,
+    "era": "年代",
+    "origin": "来源",
+    "material": "材质",
+    "craftsmanship": "工艺",
+    "cultural_context": "文化背景",
+    "controversies": "争议与未知项",
+    "exhibit_label_script": "展签版讲解词",
+    "guided_tour_script": "导览版讲解词"
+  },
+
+  "qr_code_asset": "assets/qrcodes/你的商品ID.png",
+  "cover_image": "assets/covers/你的商品ID.jpg",
+  "status": "active"
+}

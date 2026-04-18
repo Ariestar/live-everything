@@ -1,0 +1,61 @@
+{
+  "knowledge_base_id": "ar-product-guide-rich-kb",
+  "schema_version": "3.0",
+  "mode": "offline-local-kb",
+  "purpose": "用于固定笔记本摄像头场景下的商品展陈、博物馆讲解、AR感信息窗展示与离线语音问答。",
+  "design_principles": [
+    "优先使用当前物体的专属事实，不允许拟人化表达改写事实。",
+    "拟人化仅作为表达层存在，默认采用物体自述型。",
+    "已识别但未录入专属知识的物体，可回退到类别常识层回答。",
+    "类别常识层只能使用中度通用知识，不得伪造品牌、型号、年代或唯一事实。",
+    "介绍类问题拟人化更强，参数类与限制类问题表达更克制。"
+  ],
+  "response_policy": {
+    "priority_order": [
+      "specific_product",
+      "semantic_category",
+      "generic_api_fetched",
+      "generic_object"
+    ],
+    "persona_mode": "object_self_narration",
+    "persona_strength_by_question_type": [
+      { "question_type": "intro", "style": "high_personification" },
+      { "question_type": "story", "style": "high_personification" },
+      { "question_type": "selling_point", "style": "medium_high_personification" },
+      { "question_type": "use_case", "style": "medium_high_personification" },
+      { "question_type": "spec", "style": "medium_personification" },
+      { "question_type": "comparison", "style": "medium_personification" },
+      { "question_type": "limitation", "style": "low_personification" },
+      { "question_type": "unknown", "style": "low_personification" }
+    ],
+    "safe_phrases": [
+      "如果把我归到这一类物体里看",
+      "这类物体通常会",
+      "从常见使用场景来说",
+      "当前本地资料里，我能确认的是",
+      "当前本地资料还没有覆盖更具体的事实",
+      "根据公开资料显示"
+    ],
+    "forbidden_behaviors": [
+      "把类别常识说成当前物体的唯一事实",
+      "在没有专属知识时虚构品牌、型号、价格、年代、来源或稀缺性",
+      "为了拟人化效果夸大性能、保温时长、续航时长或历史价值",
+      "将不同物体的知识串用到当前问答中",
+      "将 API 拉取的通用信息当作当前物体的专属事实"
+    ]
+  },
+  "data_sources": {
+    "custom_products_dir": "products/custom/",
+    "generic_products_dir": "products/generic/",
+    "categories_file": "config/categories.json",
+    "personas_file": "config/personas.json"
+  },
+  "generic_fallback": {
+    "semantic_category_id": "generic_object",
+    "answer_templates": {
+      "intro": "我已经进入镜头，也已经被你看见，但当前本地资料还不足以把我讲得更具体。",
+      "unknown": "为了避免误导，我不会把猜测说成事实。你可以让我更靠近镜头，或者为我补充专属知识条目。",
+      "interaction_guidance": "你可以继续问我外观、用途猜测，或者切换到已录入知识的物体进行更完整的讲解。"
+    }
+  }
+}

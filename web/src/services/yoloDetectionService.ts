@@ -1,4 +1,4 @@
-import { env, pipeline, RawImage } from '@huggingface/transformers';
+import { env, pipeline, RawImage } from '@xenova/transformers';
 import type { DetectionResult, DetectionService } from '../types/detection';
 
 /** 与本地目录 `models/Xenova/yolov9-c_all` 对应（通过 Vite 映射到 `/models/`） */
@@ -61,17 +61,9 @@ export class YoloDetectionService implements DetectionService {
         model_file_name: this.modelFileName,
       } as const;
 
-      try {
-        this.detector = (await pipeline('object-detection', LOCAL_MODEL_ID, {
-          ...common,
-          device: 'webgpu',
-        })) as YoloPipeline;
-      } catch {
-        this.detector = (await pipeline('object-detection', LOCAL_MODEL_ID, {
-          ...common,
-          device: 'wasm',
-        })) as YoloPipeline;
-      }
+      console.log('[yolo] Loading model (WASM)…');
+      this.detector = (await pipeline('object-detection', LOCAL_MODEL_ID, common)) as YoloPipeline;
+      console.log('[yolo] Pipeline ready');
     })();
 
     return this.initPromise;

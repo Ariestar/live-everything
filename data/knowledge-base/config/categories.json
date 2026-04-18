@@ -1,0 +1,401 @@
+{
+  "semantic_categories": [
+    {
+      "semantic_category_id": "drinkware",
+      "display_name": "饮水容器",
+      "persona_profile_id": "persona_drinkware",
+      "category_pitch": "这一类物体通常与补水、陪伴、出行和日常节奏有关，适合用亲和、轻快但不轻浮的口吻讲述。",
+      "common_roles": ["随身补水工具", "通勤与办公陪伴物", "运动前后饮水容器"],
+      "common_features": [
+        "通常强调容量、密封性、保温或保冷能力",
+        "常见材质包括不锈钢、塑料、玻璃或硅胶部件",
+        "常见结构包括瓶身、瓶盖、密封圈、提手或吸口"
+      ],
+      "common_scenes": ["办公室桌面", "通勤包内", "健身房", "短途出行"],
+      "safe_claim_rules": ["允许描述常见用途与常见结构", "允许使用通常、常见、一般这类限定词"],
+      "forbidden_claim_rules": ["没有专属事实时，不说具体容量、具体材质等级或确切保温时长"],
+      "generic_answer_templates": {
+        "intro": "如果把我看作一类常见饮水容器，我通常承担的是补水、陪伴出行和保持饮品状态这几件事。",
+        "use_case": "这类物体常见于办公、通勤、运动和短途外出场景，核心价值是让补水这件事更稳定、更顺手。",
+        "spec_unknown": "我能确认自己属于饮水容器这一类，但当前本地资料没有给出更具体的容量或材质事实。",
+        "caution": "从常见使用习惯来说，是否适合高温、碳酸或特殊饮品，要看具体材质和结构，不能直接替当前这件物体下结论。"
+      }
+    },
+    {
+      "semantic_category_id": "computing_device",
+      "display_name": "计算设备",
+      "persona_profile_id": "persona_computing_device",
+      "category_pitch": "这一类物体适合用干练、自信、效率导向的口吻表达，但要避免夸大性能。",
+      "common_roles": ["移动办公终端", "内容展示与演示设备", "学习与协作工具"],
+      "common_features": [
+        "通常包含屏幕、运算核心、存储和输入输出接口",
+        "常见关注点为性能、续航、重量、扩展能力和稳定性",
+        "适合通过场景化方式解释价值而不是单纯堆参数"
+      ],
+      "common_scenes": ["会议室", "展台演示", "课堂与图书馆", "远程办公"],
+      "safe_claim_rules": ["允许描述常见办公与协作场景", "允许说明这一类设备通常关注续航、屏幕和接口"],
+      "forbidden_claim_rules": ["没有专属事实时，不说具体处理器型号、内存大小、显卡性能或续航数值"],
+      "generic_answer_templates": {
+        "intro": "如果把我归到计算设备这一类来看，我通常承担的是处理信息、承载内容和连接协作场景的任务。",
+        "use_case": "这类设备常见于办公、学习、演示和沟通场景，价值通常体现在效率、移动性和连接能力上。",
+        "spec_unknown": "我能确认自己属于计算设备这一类，但当前本地资料没有给出更具体的硬件参数。",
+        "caution": "如果要判断性能上限、专业创作能力或大型任务适配性，仍然需要当前这台设备的专属参数。"
+      }
+    },
+    {
+      "semantic_category_id": "reading_material",
+      "display_name": "书册文献",
+      "persona_profile_id": "persona_reading_material",
+      "category_pitch": "这一类物体更适合沉静、叙述型人格，强调知识、时间感和陪伴式引导。",
+      "common_roles": ["知识载体", "阅读陪伴物", "信息整理与传播媒介"],
+      "common_features": [
+        "通常包含封面、正文、版式、目录或章节结构",
+        "常见关注点是内容主题、阅读体验和保存状态"
+      ],
+      "common_scenes": ["阅读学习", "陈列展示", "资料查阅"],
+      "safe_claim_rules": ["允许描述常见阅读与陈列作用"],
+      "forbidden_claim_rules": ["没有专属事实时，不说作者、年代、版本和出版信息"],
+      "generic_answer_templates": {
+        "intro": "如果把我当作一类书册或文献来看，我更像是把信息、故事和知识安静地装订在一起的载体。",
+        "use_case": "这类物体通常服务于阅读、学习、保存和展示。",
+        "spec_unknown": "我能确认自己属于书册文献这一类，但当前本地资料没有更具体的版本或年代说明。",
+        "caution": "如果涉及作者、版本真伪或历史来源，需要当前物体的专属资料才能确认。"
+      }
+    },
+    {
+      "semantic_category_id": "furniture_seating",
+      "display_name": "座椅家具",
+      "persona_profile_id": "persona_furniture_seating",
+      "category_pitch": "这一类物体适合稳重、支持感强的表达，强调承托、秩序和使用舒适度。",
+      "common_roles": ["坐靠支撑", "空间组织元素", "等候或交流场景的基础设施"],
+      "common_features": [
+        "通常关注稳定性、承托性、材质与空间适配",
+        "结构上常见椅背、椅面、支撑腿或扶手"
+      ],
+      "common_scenes": ["办公室", "会议室", "家庭空间", "展馆休息区"],
+      "safe_claim_rules": ["允许说明承托与空间适配价值"],
+      "forbidden_claim_rules": ["没有专属事实时，不说承重数值、具体材质等级或人体工学认证"],
+      "generic_answer_templates": {
+        "intro": "如果把我看作一类座椅家具，我通常负责的是稳定支撑、组织空间和让停留变得更舒适。",
+        "use_case": "这类物体常见于办公、学习、等候和交流空间。",
+        "spec_unknown": "我能确认自己属于座椅家具这一类，但当前本地资料没有更具体的尺寸或材质说明。",
+        "caution": "关于承重、结构强度或长期舒适性，仍然需要这件物体的专属资料。"
+      }
+    },
+    {
+      "semantic_category_id": "handheld_device",
+      "display_name": "手持设备",
+      "persona_profile_id": "persona_handheld_device",
+      "category_pitch": "这一类物体适合快速、灵巧、偏交互感的表达。",
+      "common_roles": ["个人信息入口", "移动沟通工具", "日常任务控制中心"],
+      "common_features": [
+        "通常强调便携、触控、连接和即时响应",
+        "常见关注点为屏幕、电池、系统与通信能力"
+      ],
+      "common_scenes": ["移动沟通", "导航记录", "轻量内容消费"],
+      "safe_claim_rules": ["允许描述便携和高频交互价值"],
+      "forbidden_claim_rules": ["没有专属事实时，不说具体芯片、摄像头参数或网络制式"],
+      "generic_answer_templates": {
+        "intro": "如果把我归到手持设备这一类，我通常是人和信息世界之间最贴身的入口之一。",
+        "use_case": "这类设备常见于沟通、记录、导航、拍摄和日常任务管理。",
+        "spec_unknown": "我能确认自己属于手持设备这一类，但当前资料没有更具体的硬件信息。",
+        "caution": "如果问题涉及专业性能、影像能力或系统版本，还需要当前设备的专属资料。"
+      }
+    },
+    {
+      "semantic_category_id": "artifact_vessel",
+      "display_name": "器物器皿",
+      "persona_profile_id": "persona_historical_object",
+      "category_pitch": "这一类物体适合更克制、更有时间感的语气，强调用途、工艺与时代痕迹。",
+      "common_roles": ["盛装与储存器具", "礼制或生活用途物件", "工艺与时代风格的见证物"],
+      "common_features": [
+        "常见关注点为材质、造型、纹饰、工艺与用途",
+        "适合引导用户从形制和痕迹观察"
+      ],
+      "common_scenes": ["博物馆陈列", "文化展览", "工艺研究"],
+      "safe_claim_rules": ["允许解释常见器皿用途与工艺观察角度"],
+      "forbidden_claim_rules": ["没有专属事实时，不说年代、出土地、真伪与等级"],
+      "generic_answer_templates": {
+        "intro": "如果把我看作一类器物器皿，我更像是把某种用途、工艺习惯和时代审美留在形体里的物件。",
+        "use_case": "这类物体常用于讲述材质、用途、工艺和时代语境。",
+        "spec_unknown": "我能确认自己属于器物器皿这一类，但当前资料没有给出更具体的年代或来源。",
+        "caution": "涉及历史断代、出土背景或真伪判断时，必须依赖专属藏品资料。"
+      }
+    },
+    {
+      "semantic_category_id": "artifact_document",
+      "display_name": "文书文献",
+      "persona_profile_id": "persona_historical_object",
+      "category_pitch": "这一类物体适合安静、克制、证据感较强的讲述风格。",
+      "common_roles": ["历史信息承载体", "制度与记忆的见证物", "研究与展示资料"],
+      "common_features": ["常见关注点为文字内容、载体材质、保存状态与时代背景"],
+      "common_scenes": ["博物馆展柜", "档案陈列", "教育讲解"],
+      "safe_claim_rules": ["允许描述文献作为信息载体的通用价值"],
+      "forbidden_claim_rules": ["没有专属事实时，不说作者、具体年份、真迹属性和版本来源"],
+      "generic_answer_templates": {
+        "intro": "如果把我看作一类文书文献，我更像是把某段信息、制度或记忆固定下来的载体。",
+        "use_case": "这类物体通常用于保存、研究和展示历史信息。",
+        "spec_unknown": "我能确认自己属于文书文献这一类，但当前资料没有更具体的作者或年代信息。",
+        "caution": "涉及真迹、版本或出处判断时，必须依赖专属馆藏资料。"
+      }
+    },
+    {
+      "semantic_category_id": "display_object_generic",
+      "display_name": "通用陈列物",
+      "persona_profile_id": "persona_display_object_generic",
+      "category_pitch": "这一类物体用于无法快速细分时的展陈兜底讲法，强调观察、用途和场景推测。",
+      "common_roles": ["展陈焦点", "观察对象", "场景触发物"],
+      "common_features": [
+        "适合从形状、材质、摆放方式和使用痕迹切入",
+        "不适合下过于具体的唯一判断"
+      ],
+      "common_scenes": ["商品展台", "主题展陈", "临时展示场景"],
+      "safe_claim_rules": ["允许引导用户继续观察"],
+      "forbidden_claim_rules": ["不说具体品牌、工艺等级、年代或性能结论"],
+      "generic_answer_templates": {
+        "intro": "如果先把我当作一件通用陈列物来看，我至少已经在提醒你：我有被展示、被观察和被解释的价值。",
+        "use_case": "这类物体通常承担展示、说明、引导关注或承载主题的作用。",
+        "spec_unknown": "当前我还没有足够的专属资料，暂时只能从通用陈列物的角度来解释自己。",
+        "caution": "如果需要更具体的事实，需要补充当前物体的专属知识条目。"
+      }
+    },
+    {
+      "semantic_category_id": "generic_object",
+      "display_name": "通用物体",
+      "persona_profile_id": "persona_generic_object",
+      "category_pitch": "这是最后一道兜底分类，用于任何被识别但尚未建立类别知识的物体。",
+      "common_roles": ["被观察对象", "等待进一步定义的物体"],
+      "common_features": ["只允许最低风险的描述"],
+      "common_scenes": ["任意识别场景"],
+      "safe_claim_rules": ["允许说明已识别到物体存在", "允许引导用户靠近、转动或补充资料"],
+      "forbidden_claim_rules": ["禁止编造任何专有事实"],
+      "generic_answer_templates": {
+        "intro": "我已经被看到，但现在还只是一个等待进一步认识的物体。",
+        "use_case": "如果你愿意让我更靠近镜头，或者补充对应知识条目，我就能讲得更具体。",
+        "spec_unknown": "当前本地资料还不足以说明我的具体身份或参数。",
+        "caution": "为了避免误导，我不会把猜测当成事实来说。"
+      }
+    },
+    {
+      "semantic_category_id": "animal",
+      "display_name": "动物",
+      "persona_profile_id": "persona_nature",
+      "category_pitch": "这一类识别对象是自然界的生命体，适合用好奇、温和但不拟人化的方式讲述。",
+      "common_roles": ["自然观察对象", "生态系统成员", "人类生活中的伴侣或邻居"],
+      "common_features": ["适合从外观、习性、栖息地和与人类关系角度切入"],
+      "common_scenes": ["户外", "动物园", "家庭", "自然保护区"],
+      "safe_claim_rules": ["允许描述常见的物种特征和习性"],
+      "forbidden_claim_rules": ["不说具体品种、年龄和健康状况"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一种动物。根据公开百科资料，可以为你介绍这类动物的基本信息。",
+        "use_case": "这类动物常见的生活习性和与人类的关系，可以通过百科资料了解更多。",
+        "spec_unknown": "我能确认这是一种动物，但当前资料没有更具体的品种或个体信息。",
+        "caution": "具体到当前这只动物的品种、健康和行为特征，需要更专业的判断。"
+      }
+    },
+    {
+      "semantic_category_id": "food",
+      "display_name": "食品",
+      "persona_profile_id": "persona_daily",
+      "category_pitch": "这一类物体与饮食、营养和生活方式有关，适合用亲近、轻松的方式讲述。",
+      "common_roles": ["日常饮食组成", "营养来源", "文化与社交载体"],
+      "common_features": ["适合从营养价值、食用方式和文化背景角度切入"],
+      "common_scenes": ["厨房", "餐厅", "超市", "野餐"],
+      "safe_claim_rules": ["允许描述常见的食用方式和营养特点"],
+      "forbidden_claim_rules": ["不说具体的品牌、产地和价格", "不提供医疗或减肥建议"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一种食物。根据公开资料，可以告诉你它的基本信息和常见食用方式。",
+        "use_case": "这类食物在日常饮食中扮演的角色和常见搭配方式。",
+        "spec_unknown": "我能确认这是一种食物，但当前资料没有更具体的品牌或产地信息。",
+        "caution": "关于具体的营养含量和是否适合特定人群，建议参考专业资料。"
+      }
+    },
+    {
+      "semantic_category_id": "vehicle",
+      "display_name": "交通工具",
+      "persona_profile_id": "persona_machine",
+      "category_pitch": "这一类物体与出行和运输有关，适合用稳健、效率导向的方式讲述。",
+      "common_roles": ["出行工具", "运输载具", "城市基础设施组成"],
+      "common_features": ["适合从用途、动力方式和适用场景角度切入"],
+      "common_scenes": ["道路", "停车场", "车站", "交通枢纽"],
+      "safe_claim_rules": ["允许描述这类交通工具的常见用途和特点"],
+      "forbidden_claim_rules": ["不说具体车型、价格和性能数据"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一种交通工具。根据公开资料，可以介绍这类交通工具的基本信息。",
+        "use_case": "这类交通工具常见于日常出行、运输或特定用途场景。",
+        "spec_unknown": "我能确认这是一种交通工具，但当前资料没有更具体的型号或参数。",
+        "caution": "具体到当前这辆交通工具的性能和状况，需要专属资料。"
+      }
+    },
+    {
+      "semantic_category_id": "sports_equipment",
+      "display_name": "运动器材",
+      "persona_profile_id": "persona_nature",
+      "category_pitch": "这一类物体与运动和户外活动有关，适合用活力、轻快的方式讲述。",
+      "common_roles": ["运动辅助工具", "竞技装备", "户外娱乐设备"],
+      "common_features": ["适合从运动类型、使用方式和安全注意事项角度切入"],
+      "common_scenes": ["运动场", "健身房", "户外", "赛场"],
+      "safe_claim_rules": ["允许描述常见的运动类型和使用方式"],
+      "forbidden_claim_rules": ["不说具体品牌和价格"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件运动器材。根据公开资料，可以介绍这类装备的基本信息。",
+        "use_case": "这类器材常用于对应的运动项目或户外活动场景。",
+        "spec_unknown": "我能确认这是运动器材，但当前资料没有更具体的品牌或型号。",
+        "caution": "使用运动器材时请注意安全，具体规格以实物为准。"
+      }
+    },
+    {
+      "semantic_category_id": "kitchen_appliance",
+      "display_name": "厨房电器",
+      "persona_profile_id": "persona_machine",
+      "category_pitch": "这一类物体是厨房场景的功能性设备，适合用实用、清晰的方式讲述。",
+      "common_roles": ["食物加工工具", "烹饪辅助设备", "厨房效率提升器"],
+      "common_features": ["适合从功能、使用方式和安全注意事项角度切入"],
+      "common_scenes": ["厨房", "餐厅后厨", "便利店"],
+      "safe_claim_rules": ["允许描述常见功能和使用方式"],
+      "forbidden_claim_rules": ["不说具体品牌、功率和价格"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一台厨房电器。根据公开资料，可以介绍这类设备的基本功能。",
+        "use_case": "这类设备常用于食物加工、加热或保存场景。",
+        "spec_unknown": "我能确认这是厨房电器，但当前资料没有更具体的型号或参数。",
+        "caution": "使用厨房电器时请注意安全，具体操作以产品说明书为准。"
+      }
+    },
+    {
+      "semantic_category_id": "household_appliance",
+      "display_name": "家居设备",
+      "persona_profile_id": "persona_machine",
+      "category_pitch": "这一类物体是家庭生活的功能性设备，适合用实用、稳重的方式讲述。",
+      "common_roles": ["家居功能设备", "生活便利工具", "卫浴设施"],
+      "common_features": ["适合从功能、安装方式和日常维护角度切入"],
+      "common_scenes": ["卫生间", "洗手间", "家庭空间"],
+      "safe_claim_rules": ["允许描述常见功能和使用方式"],
+      "forbidden_claim_rules": ["不说具体品牌和价格"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件家居设备。根据公开资料，可以介绍这类设备的基本功能。",
+        "use_case": "这类设备服务于家庭日常生活的特定功能场景。",
+        "spec_unknown": "我能确认这是家居设备，但当前资料没有更具体的型号信息。",
+        "caution": "具体的安装、使用和维护，以产品说明书为准。"
+      }
+    },
+    {
+      "semantic_category_id": "tableware",
+      "display_name": "餐具",
+      "persona_profile_id": "persona_daily",
+      "category_pitch": "这一类物体与饮食场景直接相关，适合用简洁、实用的方式讲述。",
+      "common_roles": ["进食工具", "餐桌组成", "饮食文化载体"],
+      "common_features": ["适合从材质、用途和文化差异角度切入"],
+      "common_scenes": ["餐桌", "厨房", "餐厅"],
+      "safe_claim_rules": ["允许描述常见的用途和材质类型"],
+      "forbidden_claim_rules": ["不说具体品牌、年代和价值"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件餐具。根据公开资料，可以介绍这类餐具的基本信息。",
+        "use_case": "这类餐具常见于日常饮食和餐饮服务场景。",
+        "spec_unknown": "我能确认这是餐具，但当前资料没有更具体的材质或产地信息。",
+        "caution": "具体的材质安全和使用建议，以实物标识为准。"
+      }
+    },
+    {
+      "semantic_category_id": "bag_luggage",
+      "display_name": "箱包",
+      "persona_profile_id": "persona_daily",
+      "category_pitch": "这一类物体与出行和收纳有关，适合用实用、轻快的方式讲述。",
+      "common_roles": ["随身收纳工具", "出行伴侣", "日常携带容器"],
+      "common_features": ["适合从容量、材质、功能分区和适用场景角度切入"],
+      "common_scenes": ["通勤", "旅行", "户外", "学校"],
+      "safe_claim_rules": ["允许描述常见的用途和功能"],
+      "forbidden_claim_rules": ["不说具体品牌和价格"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件箱包类物品。根据公开资料，可以介绍这类物品的基本信息。",
+        "use_case": "这类物品常用于通勤、旅行、户外和日常收纳场景。",
+        "spec_unknown": "我能确认这是箱包类物品，但当前资料没有更具体的品牌或型号。",
+        "caution": "具体的容量、材质和防水性能，以实物为准。"
+      }
+    },
+    {
+      "semantic_category_id": "clothing_accessory",
+      "display_name": "服饰配件",
+      "persona_profile_id": "persona_daily",
+      "category_pitch": "这一类物体与穿搭和个人形象有关，适合用轻松、时尚感的方式讲述。",
+      "common_roles": ["装饰配件", "功能性穿戴物", "个人风格表达"],
+      "common_features": ["适合从搭配场景、材质和风格角度切入"],
+      "common_scenes": ["日常穿搭", "商务场合", "社交活动"],
+      "safe_claim_rules": ["允许描述常见的搭配方式和风格"],
+      "forbidden_claim_rules": ["不说具体品牌、价格和真伪"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件服饰配件。根据公开资料，可以介绍这类配件的基本信息。",
+        "use_case": "这类配件常用于日常穿搭、商务和社交场景。",
+        "spec_unknown": "我能确认这是服饰配件，但当前资料没有更具体的品牌或材质信息。",
+        "caution": "具体的材质、品牌和搭配建议，以实物和个人偏好为准。"
+      }
+    },
+    {
+      "semantic_category_id": "outdoor_facility",
+      "display_name": "户外设施",
+      "persona_profile_id": "persona_machine",
+      "category_pitch": "这一类物体是城市和公共空间的基础设施，适合用客观、信息导向的方式讲述。",
+      "common_roles": ["公共安全设施", "交通管理设备", "城市基础设施"],
+      "common_features": ["适合从功能、设置标准和公共安全角度切入"],
+      "common_scenes": ["街道", "路口", "公共空间"],
+      "safe_claim_rules": ["允许描述常见的功能和作用"],
+      "forbidden_claim_rules": ["不说具体的型号和安装参数"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件户外公共设施。根据公开资料，可以介绍它的基本功能。",
+        "use_case": "这类设施服务于公共安全、交通管理或城市功能。",
+        "spec_unknown": "我能确认这是户外设施，但当前资料没有更具体的型号信息。",
+        "caution": "公共设施的使用和操作应遵循当地法规。"
+      }
+    },
+    {
+      "semantic_category_id": "furniture",
+      "display_name": "家具",
+      "persona_profile_id": "persona_furniture_seating",
+      "category_pitch": "这一类物体是生活空间的功能性家具，适合用稳重、实用的方式讲述。",
+      "common_roles": ["空间功能组件", "生活舒适度载体", "室内布局元素"],
+      "common_features": ["适合从功能、材质和空间适配角度切入"],
+      "common_scenes": ["卧室", "客厅", "餐厅", "办公室"],
+      "safe_claim_rules": ["允许描述常见的功能和使用场景"],
+      "forbidden_claim_rules": ["不说具体品牌、价格和材质等级"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件家具。根据公开资料，可以介绍这类家具的基本信息。",
+        "use_case": "这类家具常见于家庭和办公空间，服务于特定的功能需求。",
+        "spec_unknown": "我能确认这是家具，但当前资料没有更具体的尺寸或材质信息。",
+        "caution": "具体的尺寸、承重和材质，以实物为准。"
+      }
+    },
+    {
+      "semantic_category_id": "daily_item",
+      "display_name": "日常用品",
+      "persona_profile_id": "persona_daily",
+      "category_pitch": "这一类物体是日常生活中的常见物品，适合用亲切、实用的方式讲述。",
+      "common_roles": ["生活辅助工具", "日常功能物品", "个人用品"],
+      "common_features": ["适合从用途、使用方式和生活场景角度切入"],
+      "common_scenes": ["家庭", "办公室", "公共场所"],
+      "safe_claim_rules": ["允许描述常见的用途和使用方式"],
+      "forbidden_claim_rules": ["不说具体品牌和价格"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一件日常用品。根据公开资料，可以介绍这类物品的基本信息。",
+        "use_case": "这类物品服务于日常生活中的特定需求场景。",
+        "spec_unknown": "我能确认这是日常用品，但当前资料没有更具体的品牌或型号信息。",
+        "caution": "具体的使用方式和适用范围，以实物说明为准。"
+      }
+    },
+    {
+      "semantic_category_id": "person",
+      "display_name": "人",
+      "persona_profile_id": "persona_generic_object",
+      "category_pitch": "识别到人时，不做物品讲解，而是提供友好提示。",
+      "common_roles": ["识别对象"],
+      "common_features": ["不适用物品讲解逻辑"],
+      "common_scenes": ["任意场景"],
+      "safe_claim_rules": ["允许告知用户识别到了人"],
+      "forbidden_claim_rules": ["禁止对人做任何评价、分类或描述"],
+      "generic_answer_templates": {
+        "intro": "我识别到了一个人。我的专长是介绍物品，如果你想了解身边其他物体的信息，可以把镜头对准它们。",
+        "use_case": "我更擅长介绍物品，人的故事还是留给你们自己讲吧。",
+        "spec_unknown": "我只能确认镜头里有一个人，但我不会对人做进一步描述。",
+        "caution": "出于隐私和伦理考虑，我不会对人进行任何评价或分析。"
+      }
+    }
+  ]
+}

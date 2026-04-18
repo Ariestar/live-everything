@@ -36,6 +36,7 @@ export function useDetection({
     setAllDetections,
     setCurrentDetection,
     setCurrentProduct,
+    setModelStatus,
     products,
     classMappings,
     state,
@@ -114,7 +115,7 @@ export function useDetection({
         }
       }
     } catch (e) {
-      console.error('[detection] Frame processing error:', e);
+      console.error('[detection] Frame processing error:', e instanceof Error ? e.message : e, e);
     }
   }, [
     videoRef,
@@ -126,15 +127,28 @@ export function useDetection({
     setAllDetections,
     setCurrentDetection,
     setCurrentProduct,
+    setModelStatus,
     resetInteraction,
   ]);
 
   useEffect(() => {
-    if (enabled) {
-      detectionService.current.initialize();
+    if (!enabled) return;
+
+    let cancelled = false;
+
+    setModelStatus('loading');
+    detectionService.current.initialize().then(() => {
+      if (cancelled) return;
+      setModelStatus('ready');
+      console.log('[detection] Model ready, starting detection loop');
       intervalRef.current = setInterval(processFrame, CONFIG.detectionIntervalMs);
-    }
+    }).catch((e) => {
+      setModelStatus('error');
+      console.error('[detection] Model initialization failed:', e);
+    });
+
     return () => {
+      cancelled = true;
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [enabled, processFrame]);
