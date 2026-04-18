@@ -1,0 +1,233 @@
+{
+  "product_id": "apple-iphone-13",
+  "product_name": "Apple iPhone 13",
+  "brand": "Apple",
+  "brand_en": "Apple",
+  "brand_zh": "苹果",
+  "model": "iPhone 13",
+  "category_id": "smartphone",
+  "semantic_category_id": "handheld_device",
+  "persona_profile_id": "persona_handheld_device",
+  "identity_level": "specific_demo_product",
+  "aliases": ["iPhone", "iPhone13", "苹果手机", "苹果13", "手机", "iPhone 13", "iphone13"],
+  "tagline": "iPhone 13。你的新超能力。A15 仿生芯片驱动，铝金属+玻璃机身，对角线双摄。",
+  "one_line_hook": "我是 iPhone 13，苹果 2021 年的主力机型——A15 芯片、对角线双摄、全天续航，到今天依然是很多人的主力手机。",
+
+  "self_intro_short": "我是 iPhone 13，2021 年 9 月发布，搭载 A15 仿生芯片和 6.1 英寸超视网膜 XDR 显示屏，是 iPhone 标准版中的经典一代。",
+
+  "self_intro_medium": "我是 iPhone 13，苹果在 2021 年 9 月发布的主力机型。我搭载了 A15 仿生芯片——和当年 iPhone 13 Pro 同款的 CPU 和 GPU 核心。6.1 英寸超视网膜 XDR 全面屏，亮度最高 800 尼特。背面是重新设计的对角线排列双摄系统：1200 万像素广角 + 1200 万像素超广角，支持传感器位移式光学图像防抖（以前只有 Pro 才有）。电池续航比 iPhone 12 多了约 2.5 小时。128GB 起步存储。5 种配色：星光、午夜、蓝、粉、红。虽然发布已经几年，但 A15 的性能余量和 iOS 持续更新让我到今天依然是市场上最活跃的 iPhone 型号之一。",
+
+  "self_intro_long": "我是 iPhone 13，苹果公司 2021 年 9 月 15 日在 Apple Park 线上发布会推出的主力 iPhone。要理解我的定位，得先看 iPhone 的产品线逻辑：每年苹果会发布标准版、mini、Pro 和 Pro Max 四个型号，标准版是销量最大的——它代表苹果认为大多数人需要的那个平衡点。我的核心配置：A15 仿生芯片，台积电 5nm 工艺，6 核 CPU（2 性能核 + 4 能效核）+ 4 核 GPU + 16 核神经网络引擎。这颗芯片在发布时是移动端最强的处理器之一，即便到今天运行最新的 iOS 和主流 App 依然流畅。屏幕是 6.1 英寸超视网膜 XDR OLED 全面屏，2532×1170 分辨率，460ppi，800 尼特典型亮度、1200 尼特 HDR 峰值。相机系统做了一个重要升级：对角线排列的双 1200 万像素镜头（广角 f/1.6 + 超广角 f/2.4），广角主摄首次搭载传感器位移式光学防抖——这个技术在 iPhone 12 时代只有 Pro Max 才有，我把它下放到了标准版。视频能力方面，支持杜比视界 HDR 录制、电影效果模式（模拟浅景深，自动切换焦点）。电池续航比前代 iPhone 12 多约 2.5 小时，支持 MagSafe 磁吸无线充电（最高 15W）和 Qi 无线充电（7.5W），有线充电用 Lightning 接口（20W 快充需另购充电器）。机身采用铝金属中框 + 前后玻璃面板，前面板是超瓷晶（Ceramic Shield），IP68 防水防尘（6 米水深 30 分钟）。存储选项：128GB / 256GB / 512GB。5 种配色：星光色、午夜色、蓝色、粉色、(PRODUCT)RED 红色。首发价 5999 元人民币起（128GB）。虽然后来有了 iPhone 14、15、16，但 iPhone 13 凭借 A15 的长寿性能、合理的定价和苹果持续的 iOS 支持，一直是全球出货量最高的 iPhone 型号之一。",
+
+  "story_monologue_90s": "我是 iPhone 13。2021 年 9 月在 Apple Park 发布时，苹果给我的定位很明确——不是最贵的那个，但是最多人会买的那个。A15 仿生芯片给我的性能余量非常充足，到现在跑最新 iOS 依然流畅。相机做了一个很实在的升级：传感器位移式光学防抖，以前只有最贵的 Pro Max 才有，从我这一代开始标准版也给了。对角线排列的双摄不只是好看，是为了给传感器留更大的空间。电池续航比上一代多了约 2.5 小时——在 iPhone 历史上，续航能一次性进步这么多的代际并不多。128GB 起步存储，终于告别了 64GB 的尴尬。5G、MagSafe、IP68 防水、电影效果模式，该有的都有了。5999 元起的定价在苹果产品线里属于'主流价格'。所以你会看到一个现象：iPhone 13 发布几年后，仍然是苹果在售时间最长、累计销量最高的 iPhone 之一。它不是某一项能力的极致，而是每一项都够用、整体体验最平衡的选择。",
+
+  "story_monologue_3min": "我是 iPhone 13，2021 年 9 月发布的苹果主力 iPhone。要理解我在 iPhone 家族中的位置，得先看一个数字：iPhone 13 系列是 iPhone 历史上全球累计出货量最高的系列之一，而我——标准版——是其中卖得最好的型号。为什么？因为苹果每年的标准版 iPhone 代表的是一个'大多数人的最优解'。往上有 Pro 和 Pro Max，屏幕更好、相机更强、价格也更高；往下有 mini，更小更便宜。标准版就是那个平衡点。先说芯片。A15 仿生，台积电 5nm 制程，6 核 CPU + 4 核 GPU + 16 核神经网络引擎，集成近 150 亿个晶体管。在我发布时，A15 是市场上最强的移动处理器，没有之一。即便到今天，A15 运行最新的 iOS 和所有主流 App 依然毫无压力，这就是苹果自研芯片的长期价值——不像很多安卓芯片两三年就开始卡顿，A15 的性能余量足以支撑 5 年以上的流畅使用。再说相机。我有两颗 1200 万像素镜头——广角 f/1.6 + 超广角 f/2.4，对角线排列。关键升级是广角主摄用了传感器位移式光学防抖（Sensor-shift OIS），这个技术在 iPhone 12 时代只有最贵的 Pro Max 才有，从我这一代开始下放到标准版。什么意思呢？就是防抖不再靠镜头组件移动，而是让整个传感器浮动补偿——稳定性更好，暗光拍照更清晰。视频方面，我支持杜比视界 HDR 录制和'电影效果模式'，可以在拍视频时实现类似电影的浅景深效果并自动切换焦点。屏幕是 6.1 英寸 OLED，苹果叫它'超视网膜 XDR 显示屏'，2532×1170，460ppi，800 尼特日常亮度、1200 尼特 HDR 峰值。注意标准版是 60Hz 刷新率——ProMotion 120Hz 要到 Pro 才有。对大多数人来说 60Hz 完全够用，但如果你习惯了高刷会感觉到差异。电池续航是 iPhone 13 非常亮眼的一个点，比 iPhone 12 多了大约 2.5 小时。苹果是通过 A15 的能效优化、更大的电池和更省电的屏幕组件共同实现的。支持 MagSafe 15W 无线充电、Qi 7.5W、Lightning 有线 20W 快充（需另购充电器和线）。机身是铝金属中框 + 前后玻璃面板，前面板用了超瓷晶面板（Ceramic Shield），抗摔性能是普通玻璃的 4 倍。IP68 防水——最深 6 米、最长 30 分钟。5 种配色：星光、午夜、蓝、粉、红。128GB 起步，上来就告别了 64GB 时代。首发价 5999 元。对很多人来说，iPhone 13 是一部你可以用 4 到 5 年不换的手机。不是因为你不想换，是因为它真的到那时候还够用。",
+
+  "visual_identity": {
+    "shape_language": "6.1 英寸圆角矩形，铝金属中框，前后玻璃面板",
+    "material_impression": "航空级铝金属 + 超瓷晶前面板 + 玻璃后盖",
+    "notable_cues": ["对角线排列双摄（左上角）", "刘海（Face ID 原深感摄像头）", "铝金属平直中框", "Lightning 接口（底部居中）", "Apple logo（背面居中）", "MagSafe 磁吸圈（背面）"]
+  },
+
+  "brand_history": {
+    "company": "Apple Inc.",
+    "founded_year": 1976,
+    "founders": "Steve Jobs, Steve Wozniak, Ronald Wayne",
+    "headquarters": "美国加利福尼亚州库比蒂诺 Apple Park",
+    "iphone_launch_year": 2007,
+    "narrative": "苹果公司 1976 年由乔布斯、沃兹尼亚克和韦恩创立。2007 年发布初代 iPhone，重新定义了智能手机行业。iPhone 13 是 2021 年发布的第 15 代 iPhone 产品线，也是 iPhone 历史上累计销量最高的系列之一。",
+    "iphone_milestones": [
+      { "year": 2007, "event": "初代 iPhone 发布，开创触屏智能手机时代" },
+      { "year": 2008, "event": "iPhone 3G 发布，App Store 上线" },
+      { "year": 2010, "event": "iPhone 4 发布，Retina 显示屏首次登场" },
+      { "year": 2013, "event": "iPhone 5s 搭载首款 64 位移动芯片 A7 + Touch ID" },
+      { "year": 2017, "event": "iPhone X 发布，全面屏 + Face ID，取消 Home 键" },
+      { "year": 2020, "event": "iPhone 12 系列，首次支持 5G，回归平直中框设计" },
+      { "year": 2021, "event": "iPhone 13 系列，A15 仿生，传感器位移防抖下放标准版" },
+      { "year": 2022, "event": "iPhone 14 系列，Pro 引入灵动岛取代刘海" },
+      { "year": 2023, "event": "iPhone 15 系列，全系改用 USB-C 接口" }
+    ]
+  },
+
+  "core_values": ["A15 长寿性能", "传感器位移防抖", "全天续航", "iOS 生态", "品质做工"],
+
+  "selling_points": [
+    {
+      "title": "A15 仿生芯片",
+      "detail": "台积电 5nm，6 核 CPU + 4 核 GPU + 16 核神经网络引擎，近 150 亿晶体管。发布时移动端最强，至今运行最新 iOS 仍流畅。",
+      "scene_value": "性能余量支撑 5 年以上流畅使用，不像很多手机两三年就卡。"
+    },
+    {
+      "title": "传感器位移式光学防抖",
+      "detail": "广角主摄搭载 Sensor-shift OIS，上代只有 Pro Max 才有。整个传感器浮动补偿，暗光拍照更清晰。",
+      "scene_value": "手持拍照更稳，夜间和暗光场景提升明显。"
+    },
+    {
+      "title": "对角线双摄系统",
+      "detail": "1200万像素广角(f/1.6) + 1200万超广角(f/2.4)，对角线排列为传感器留出更大空间。支持电影效果模式和杜比视界HDR录制。",
+      "scene_value": "拍照、拍视频都够用，电影模式可以拍出浅景深电影感视频。"
+    },
+    {
+      "title": "全天续航",
+      "detail": "比 iPhone 12 多约 2.5 小时使用时间，苹果官方标注视频播放最长 19 小时。",
+      "scene_value": "正常使用一整天不用焦虑电量，重度使用也能撑到晚上。"
+    },
+    {
+      "title": "128GB 起步",
+      "detail": "告别 64GB 起步时代，可选 128/256/512GB。",
+      "scene_value": "不用一上来就纠结存储够不够用。"
+    },
+    {
+      "title": "IP68 + 超瓷晶面板",
+      "detail": "6 米水深 30 分钟防水，Ceramic Shield 前面板抗摔性能是普通玻璃 4 倍。",
+      "scene_value": "日常使用更安心，不用太担心溅水和意外跌落。"
+    },
+    {
+      "title": "5G + MagSafe 生态",
+      "detail": "支持 Sub-6GHz 5G，MagSafe 磁吸无线充电 15W，兼容丰富的 MagSafe 配件生态。",
+      "scene_value": "网速快、充电方便、配件选择多。"
+    }
+  ],
+
+  "specs": [
+    { "name": "品牌", "value": "Apple（苹果）" },
+    { "name": "型号", "value": "iPhone 13（A2634 等，因地区不同有多个型号）" },
+    { "name": "发布日期", "value": "2021年9月15日发布，9月24日上市" },
+    { "name": "芯片", "value": "A15 仿生（5nm，6核CPU + 4核GPU + 16核神经引擎，约150亿晶体管）" },
+    { "name": "运行内存", "value": "4GB LPDDR4X" },
+    { "name": "存储", "value": "128GB / 256GB / 512GB" },
+    { "name": "屏幕", "value": "6.1英寸 超视网膜XDR OLED，2532×1170，460ppi" },
+    { "name": "屏幕亮度", "value": "800尼特（典型）/ 1200尼特（HDR峰值）" },
+    { "name": "刷新率", "value": "60Hz（ProMotion 120Hz 仅 Pro 系列）" },
+    { "name": "后置相机", "value": "1200万广角(f/1.6, Sensor-shift OIS) + 1200万超广角(f/2.4)" },
+    { "name": "前置相机", "value": "1200万原深感(f/2.2)，支持 Face ID" },
+    { "name": "视频能力", "value": "4K 60fps，杜比视界HDR录制，电影效果模式（1080p 30fps）" },
+    { "name": "电池", "value": "3240mAh（苹果未官方标注），视频播放最长19小时" },
+    { "name": "充电", "value": "Lightning有线20W快充 / MagSafe 15W / Qi 7.5W" },
+    { "name": "生物识别", "value": "Face ID 面容识别" },
+    { "name": "防水防尘", "value": "IP68（6米水深30分钟）" },
+    { "name": "机身材质", "value": "航空级铝金属中框 + 超瓷晶前面板 + 玻璃后盖" },
+    { "name": "尺寸", "value": "146.7 × 71.5 × 7.65 mm" },
+    { "name": "重量", "value": "173g" },
+    { "name": "SIM卡", "value": "双卡（nano-SIM + eSIM，国行为双nano-SIM）" },
+    { "name": "操作系统", "value": "出厂 iOS 15，可升级至最新 iOS" },
+    { "name": "配色", "value": "星光色、午夜色、蓝色、粉色、(PRODUCT)RED红色；后追加绿色" },
+    { "name": "首发价格", "value": "5999元起（128GB，中国大陆）" },
+    { "name": "接口", "value": "Lightning（iPhone 15 起改 USB-C）" }
+  ],
+
+  "competitive_comparison": [
+    {
+      "competitor": "iPhone 12",
+      "type": "上一代 iPhone",
+      "key_difference": "iPhone 13 的 A15 比 A14 性能提升约 20–30%，传感器位移防抖从 Pro Max 下放，电池续航多 2.5 小时，存储 128GB 起步（12 是 64GB 起步），刘海面积缩小 20%。",
+      "verdict": "全面升级，续航和相机防抖是最值得的提升。"
+    },
+    {
+      "competitor": "iPhone 14",
+      "type": "下一代 iPhone",
+      "key_difference": "iPhone 14 标准版仍用 A15 芯片（和 13 Pro 同款），主要升级是前摄自动对焦、卫星SOS紧急求救、车祸检测。屏幕和设计几乎相同。",
+      "verdict": "iPhone 14 标准版升级幅度小，从 13 换 14 性价比不高。"
+    },
+    {
+      "competitor": "iPhone 13 Pro",
+      "type": "同代 Pro 版",
+      "key_difference": "Pro 多了 120Hz ProMotion、3 倍长焦镜头、LiDAR、不锈钢中框、ProRes 视频录制、A15 多一个 GPU 核心。价格贵 2000 元。",
+      "verdict": "如果不需要长焦和高刷，标准版的性价比更高。"
+    },
+    {
+      "competitor": "三星 Galaxy S21",
+      "type": "同期安卓旗舰",
+      "key_difference": "S21 搭载骁龙 888/Exynos 2100，120Hz 屏幕。iPhone 13 的 A15 单核性能和能效更强，iOS 系统更新支持时间更长（通常 5–6 年），但 S21 有 120Hz 和更多自定义空间。",
+      "verdict": "看生态偏好——iOS 选 iPhone，安卓选三星。"
+    }
+  ],
+
+  "audience": ["需要换机的 iPhone 用户", "安卓转 iOS 的用户", "追求性价比的苹果用户", "对拍照有需求的日常用户", "学生和年轻消费群体"],
+
+  "use_cases": [
+    "日常通讯和社交媒体",
+    "拍照和短视频创作",
+    "移动办公和学习",
+    "游戏和娱乐",
+    "移动支付（Apple Pay / 微信 / 支付宝）",
+    "黑客松现场：查资料、测试、沟通协作"
+  ],
+
+  "guided_demo_script": [
+    { "step": "识别开场", "line": "我是 iPhone 13，苹果 2021 年的主力机型——到今天仍然是全球最活跃的 iPhone 型号之一。" },
+    { "step": "核心卖点", "line": "A15 仿生芯片给我的性能余量非常足，用到现在跑最新 iOS 还是很流畅。相机有个关键升级：传感器位移防抖，以前只有最贵的 Pro Max 才有。" },
+    { "step": "定位解读", "line": "苹果每年的标准版 iPhone 代表'大多数人的最优解'——往上有 Pro，往下有 mini，我就是那个平衡点。" },
+    { "step": "引导提问", "line": "你可以问我参数、和 iPhone 12 或 14 的区别、为什么 A15 能用这么久、或者和安卓旗舰怎么比。" }
+  ],
+
+  "limitations": [
+    "屏幕刷新率 60Hz，没有 ProMotion 120Hz（要 Pro 才有）。",
+    "Lightning 接口，不是 USB-C（iPhone 15 起才改）。",
+    "没有长焦镜头，只有广角+超广角双摄（三摄要 Pro）。",
+    "没有常亮显示（Always-On Display，iPhone 14 Pro 起才有）。",
+    "不支持 ProRes 视频录制（Pro 专属）。",
+    "20W 快充速度在 2024 年看不算快，且充电器和线需另购。",
+    "包装内不附带充电器和有线耳机。"
+  ],
+
+  "care_tips": [
+    "建议使用 Apple 认证或 MFi 认证的充电配件。",
+    "虽然 IP68 防水，但不建议主动泡水——防水性能会随使用时间衰减。",
+    "超瓷晶面板抗摔但不防刮，建议贴膜。",
+    "电池健康低于 80% 时建议更换电池以保持性能。",
+    "定期清理存储，尤其是相机胶卷和缓存。"
+  ],
+
+  "common_misunderstandings": [
+    { "myth": "iPhone 13 已经过时了", "fact": "A15 芯片性能余量大，iOS 持续更新支持，到 2025–2026 年仍然流畅好用。iPhone 14 标准版甚至还在用 A15。" },
+    { "myth": "标准版和 Pro 差距很大", "fact": "核心差异是 120Hz 屏幕、长焦镜头和不锈钢中框。日常使用、拍照（非长焦场景）和性能上，标准版完全够用。" },
+    { "myth": "iPhone 不能双卡", "fact": "iPhone 13 国行支持双 nano-SIM 物理卡槽，港版等支持 nano-SIM + eSIM。" },
+    { "myth": "A15 和 A14 差不多", "fact": "CPU 提升约 20–30%，GPU 提升约 30%，神经引擎大幅提升。更重要的是能效比优化带来了续航提升。" },
+    { "myth": "iPhone 拍照不如安卓", "fact": "iPhone 13 的计算摄影（Smart HDR 4、电影模式）在发布时是业界领先水平。硬件像素数不是唯一指标，计算摄影和色彩调校同样关键。" }
+  ],
+
+  "question_type_answers": {
+    "intro": "我是 iPhone 13，苹果 2021 年 9 月发布的主力 iPhone。A15 仿生芯片、6.1 英寸 OLED 屏、对角线双摄、全天续航、5999 元起。到今天仍然是全球最活跃的 iPhone 型号之一。",
+    "selling_point": "A15 长寿性能、传感器位移防抖（Pro Max 级技术下放）、全天续航（比上代多 2.5 小时）、128GB 起步、IP68 + 超瓷晶面板。这些是我最核心的卖点。",
+    "use_case": "日常通讯、拍照、短视频、移动办公、游戏、移动支付。不管是通勤路上还是黑客松现场，我都是你手边最常用的设备。",
+    "spec": "A15 芯片(5nm)，4GB RAM，128/256/512GB，6.1英寸OLED 460ppi，1200万双摄(Sensor-shift OIS)，3240mAh电池，173g，IP68，Lightning，Face ID，5G。",
+    "comparison": "和 iPhone 12 比：A15更强+防抖下放+续航多2.5h+128GB起步。和 iPhone 14 比：14 标准版升级幅度小，还是 A15。和 13 Pro 比：少了120Hz、长焦和不锈钢框，便宜2000。",
+    "story": "iPhone 13 发布时苹果的策略很清晰：把 Pro 级别的关键技术（传感器位移防抖）下放到标准版，让更多人用上更好的相机。A15 的性能余量则让这台手机的使用寿命远超同期竞品。",
+    "limitation": "60Hz 屏幕没有高刷、Lightning 不是 USB-C、没有长焦和常亮显示、快充速度一般、包装内不带充电器。",
+    "unknown": "这个问题超出我目前的资料范围，建议查看 Apple 官网或 Apple 支持页面。"
+  },
+
+  "follow_up_questions": [
+    "想了解 iPhone 13 和 iPhone 12 的具体区别？",
+    "好奇 A15 芯片为什么能用这么久？",
+    "想知道标准版和 Pro 差在哪？值不值得加钱？",
+    "想了解 iPhone 的拍照能力？我可以详细讲讲相机系统。",
+    "想知道 iPhone 13 现在还值得买吗？"
+  ],
+
+  "faq": [
+    { "question": "iPhone 13 现在还值得买吗？", "answer": "值得考虑。A15 芯片性能余量大，iOS 持续支持更新，128GB 起步存储够用。如果预算有限但想用 iPhone，13 的性价比在 2024–2025 年非常高。iPhone 14 标准版升级幅度小（甚至还是 A15），选 13 更划算。" },
+    { "question": "iPhone 13 和 14 有什么区别？", "answer": "iPhone 14 标准版主要升级：前摄自动对焦、车祸检测、卫星SOS。芯片仍是 A15（Pro 版本的满血版多 1 个 GPU 核心）。屏幕设计几乎一样。如果不是特别需要这几个新功能，从 13 换 14 意义不大。" },
+    { "question": "A15 芯片性能怎么样？", "answer": "台积电 5nm，约 150 亿晶体管。Geekbench 单核约 1730、多核约 4700（发布时数据）。到今天运行最新 iOS 和所有主流 App 仍然流畅。iPhone 14 标准版也用的 A15，说明苹果自己也认为它够强。" },
+    { "question": "拍照好吗？", "answer": "双 1200 万像素（广角+超广角），广角主摄有传感器位移防抖。支持 Smart HDR 4、夜间模式、电影效果模式。日常拍照和短视频完全够用。如果需要 3 倍长焦或更专业的 ProRes 视频，那需要 Pro 版。" },
+    { "question": "电池够用吗？", "answer": "苹果官方标注视频播放最长 19 小时。实际日常使用，中度使用一天没问题，重度使用到晚上也能撑住。比 iPhone 12 多约 2.5 小时续航。" },
+    { "question": "为什么不是 USB-C？", "answer": "iPhone 13 发布时（2021年）苹果仍使用 Lightning 接口。直到 2023 年 iPhone 15 才全系改用 USB-C，主要受欧盟统一充电接口法规推动。" },
+    { "question": "有高刷吗？", "answer": "没有。iPhone 13 标准版是 60Hz。120Hz ProMotion 自适应刷新率从 iPhone 13 Pro 开始有，标准版到 iPhone 15 Pro 仍未下放。对大多数人 60Hz 够用，但如果你习惯了高刷会感到差异。" },
+    { "question": "防水吗？", "answer": "IP68 等级，最深 6 米、最长 30 分钟。日常溅水、雨淋没问题，但不建议主动泡水或带去游泳——防水性能会随使用时间衰减，且进水不在保修范围内。" },
+    { "question": "包装里有充电器吗？", "answer": "没有。从 iPhone 12 开始苹果不再附带充电器和有线耳机，包装内只有手机和一根 Lightning to USB-C 数据线。20W 快充头需要另购。" },
+    { "question": "多少钱？", "answer": "2021 年首发价 128GB 5999 元、256GB 6799 元、512GB 8399 元（中国大陆）。现在市场上的新机/官翻价格已经大幅降低。" },
+    { "question": "支持 5G 吗？", "answer": "支持。iPhone 13 全系支持 Sub-6GHz 5G。在有 5G 覆盖的地区可以体验更快的网络速度。" },
+    { "question": "能用几年？", "answer": "苹果通常为 iPhone 提供 5–6 年的 iOS 系统更新。iPhone 13 搭载 A15 芯片，性能余量大，预计可流畅使用到 2026–2027 年甚至更久。" }
+  ],
+
+  "product_extension": {
+    "merchandising_angle": "强调 A15 长寿性能和 Pro 级防抖下放的性价比故事，以及苹果生态的长期价值。",
+    "demo_focus": "识别到手机后，重点讲：A15 为什么到今天还能打、传感器位移防抖从 Pro Max 下放的意义、iPhone 13 在苹果产品线中的定位。",
+    "hackathon_angle": "黑客松最常见的手机之一。适合演示'识别一部手机能讲出什么：芯片、相机技术、品牌故事、竞品对比、选购建议'。"
+  },
+  "museum_extension": { "enabled": false },
+  "qr_code_asset": "assets/qrcodes/apple-iphone-13.png",
+  "cover_image": "assets/covers/apple-iphone-13.jpg",
+  "status": "active"
+}
