@@ -35,6 +35,13 @@ interface AppStore {
   qaHistory: Array<{ q: string; a: string }>;
   addQA: (q: string, a: string) => void;
 
+  /** 已在后端创建的 agent_id；和 currentProduct 对齐，切换商品时自动销毁重建 */
+  currentAgentId: string | null;
+  setCurrentAgentId: (id: string | null) => void;
+  /** 后端健康：false 时 VoiceButton 自动降级到本地 QA */
+  backendReady: boolean;
+  setBackendReady: (r: boolean) => void;
+
   // Model status
   modelStatus: 'idle' | 'loading' | 'ready' | 'error';
   setModelStatus: (s: 'idle' | 'loading' | 'ready' | 'error') => void;
@@ -79,6 +86,11 @@ export const useAppStore = create<AppStore>((set) => ({
   qaHistory: [],
   addQA: (q, a) => set((s) => ({ qaHistory: [...s.qaHistory, { q, a }] })),
 
+  currentAgentId: null,
+  setCurrentAgentId: (id) => set({ currentAgentId: id }),
+  backendReady: false,
+  setBackendReady: (r) => set({ backendReady: r }),
+
   modelStatus: 'idle',
   setModelStatus: (s) => set({ modelStatus: s }),
 
@@ -97,5 +109,6 @@ export const useAppStore = create<AppStore>((set) => ({
       voiceText: '',
       currentAnswer: '',
       qaHistory: [],
+      currentAgentId: null,
     }),
 }));

@@ -153,6 +153,36 @@ class OpenAICompatibleProvider(LLMProvider):
             return False
 
 
+class DeepSeekProvider(OpenAICompatibleProvider):
+    """DeepSeek Chat / Reasoner —— 与 OpenAI Chat Completions 完全兼容。
+
+    默认走 https://api.deepseek.com/v1 + deepseek-chat；
+    API Key 从 env `DEEPSEEK_API_KEY` 读取。
+    """
+
+    def __init__(
+        self,
+        base_url: str = config.DEEPSEEK_BASE_URL,
+        api_key: str = config.DEEPSEEK_API_KEY,
+        model: str = config.DEEPSEEK_MODEL,
+    ):
+        if not api_key:
+            logger.warning(
+                "DEEPSEEK_API_KEY is empty; DeepSeek calls will 401. "
+                "Set it via agent/.env"
+            )
+        super().__init__(base_url=base_url, api_key=api_key, model=model)
+
+    async def health_check(self) -> bool:
+        """DeepSeek /models 支持 GET；空 key 也能触发 401，从而快速判断。"""
+        try:
+            resp = await self.client.get(f"{self.base_url}/models")
+            # 200 = OK；401 = key 坏；都说明端点可达
+            return resp.status_code in (200, 401)
+        except Exception:
+            return False
+
+
 class RuleBasedProvider(LLMProvider):
     """Fallback: no LLM, purely knowledge-retrieval + template answers."""
 
@@ -184,12 +214,13 @@ def create_llm_provider(provider_type: Optional[str] = None) -> LLMProvider:
     """Factory to create the configured LLM provider."""
     pt = provider_type or config.LLM_PROVIDER
 
+    if pt == "deepseek":
+        return DeepSeekProvider()
     if pt == "ollama":
         return OllamaProvider()
-    elif pt == "openai_compatible":
+    if pt == "openai_compatible":
         return OpenAICompatibleProvider()
-    elif pt == "rule":
+    if pt == "rule":
         return RuleBasedProvider()
-    else:
-        logger.warning("Unknown LLM provider '%s', falling back to rule-based", pt)
-        return RuleBasedProvider()
+    logger.warning("Unknown LLM provider '%s', falling back to rule-based", pt)
+    return RuleBasedProvider()

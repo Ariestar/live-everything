@@ -88,10 +88,25 @@ function localAssetsPlugin(): Plugin {
   };
 }
 
+const AGENT_BACKEND = process.env.VITE_AGENT_BACKEND ?? 'http://localhost:8000';
+
 export default defineConfig({
   plugins: [react(), localAssetsPlugin()],
   server: {
     host: true,
     port: 5173,
+    proxy: {
+      // agent FastAPI 服务（默认 http://localhost:8000）
+      '/api': {
+        target: AGENT_BACKEND,
+        changeOrigin: true,
+      },
+      // 预留：原生 WebSocket /ws 也转发，后端已提供实时多 agent 通道
+      '/ws': {
+        target: AGENT_BACKEND.replace(/^http/, 'ws'),
+        ws: true,
+        changeOrigin: true,
+      },
+    },
   },
 });

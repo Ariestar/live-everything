@@ -19,6 +19,7 @@ from .rag.ingestor import RAGIngestor
 from .rag.retriever import RAGRetriever
 from .rag.vector_store import VectorStore
 from .stt_provider import STTProvider, create_stt_provider
+from .web_search import WebSearcher, build_web_context
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ class AgentManager:
         self.rich_knowledge = RichKnowledgeBase()
         self.llm: LLMProvider = create_llm_provider()
         self.stt: STTProvider = create_stt_provider()
+        self.web: Optional[WebSearcher] = WebSearcher() if config.WEB_SEARCH_ENABLED else None
 
         # Label mapping: detection_id → {en, zh, semantic_category_id, custom_product_id, ...}
         self._label_mapping: Dict[str, dict] = {}
@@ -186,6 +188,25 @@ class AgentManager:
         if not knowledge_ctx:
             knowledge_ctx = self.rich_knowledge.build_keyword_context(query, resolved)
 
+        # 若本地知识不足，尝试联网补充
+        if self.web and self._needs_web_augment(knowledge_ctx):
+            web_query = self._build_web_query(query, resolved)
+            try:
+                web_results = await self.web.search(web_query)
+            except Exception as exc:
+                logger.warning("Web search failed: %s", exc)
+                web_results = []
+            if web_results:
+                web_block = build_web_context(web_query, web_results)
+                knowledge_ctx = (
+                    f"{knowledge_ctx}\n\n{web_block}" if knowledge_ctx else web_block
+                )
+                logger.info(
+                    "Augmented context with %d web results for query=%r",
+                    len(web_results),
+                    web_query,
+                )
+
         effective_system_prompt = agent.system_prompt
         policy_prompt = self.rich_knowledge.build_policy_prompt(resolved)
         if policy_prompt:
@@ -243,6 +264,36 @@ class AgentManager:
             return "", "未能识别语音内容，请重试。"
         answer = await self.ask(agent_id, text)
         return text, answer
+
+    # ── Web search helpers ─────────────────────────────────────
+
+    @staticmethod
+    def _needs_web_augment(knowledge_ctx: str) -> bool:
+        """判断本地知识是否不足 → 需要联网。
+
+        标准：没有任何以 ``- `` 起头的知识条目，说明 RAG/关键字都没召回。
+        """
+        if not knowledge_ctx:
+            return True
+        for line in knowledge_ctx.splitlines():
+            stripped = line.lstrip()
+            if stripped.startswith("- "):
+                return False
+        return True
+
+    @staticmethod
+    def _build_web_query(query: str, resolved) -> str:
+        """用物体名 + 用户问题拼一个更贴题的搜索词。"""
+        anchors: list[str] = []
+        for key in (
+            getattr(resolved, "product_name", ""),
+            getattr(resolved, "semantic_category_name", ""),
+            getattr(resolved, "object_label", ""),
+        ):
+            if key and key not in anchors:
+                anchors.append(key)
+        prefix = " ".join(anchors[:2]).strip()
+        return f"{prefix} {query}".strip() if prefix else query.strip()
 
     def ingest_product(self, data: dict) -> int:
         product_id = data.get("product_id", "")
@@ -395,6 +446,12 @@ class AgentManager:
         llm_ok = await self.llm.health_check()
         stt_ok = await self.stt.health_check()
         rag_stats = self.vector_store.global_stats() if self.vector_store else None
+        web_ok: Optional[bool] = None
+        if self.web is not None:
+            try:
+                web_ok = await self.web.health_check()
+            except Exception:
+                web_ok = False
         return {
             "agents": len(self._agents),
             "knowledge_products": self.knowledge_store.count,
@@ -403,9 +460,17 @@ class AgentManager:
             "label_mapping": len(self._label_mapping),
             "rich_files": self.rich_knowledge.loaded_files,
             "llm_provider": config.LLM_PROVIDER,
+            "llm_model": self._llm_model_name(),
             "llm_healthy": llm_ok,
             "stt_provider": config.STT_PROVIDER,
             "stt_healthy": stt_ok,
             "rag_enabled": config.RAG_ENABLED,
             "rag_stats": rag_stats,
+            "web_search_enabled": bool(self.web),
+            "web_search_provider": config.WEB_SEARCH_PROVIDER if self.web else None,
+            "web_search_healthy": web_ok,
         }
+
+    def _llm_model_name(self) -> str:
+        model = getattr(self.llm, "model", "")
+        return model or ""

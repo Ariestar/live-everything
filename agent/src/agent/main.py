@@ -47,6 +47,20 @@ async def lifespan(app: FastAPI):
     health = await agent_manager.health()
     logger.info("System health: %s", health)
 
+    # 异步预热 Whisper，避免第一次 /audio 请求被 10-30s 的模型加载阻塞
+    import asyncio as _asyncio
+
+    async def _warmup_stt() -> None:
+        try:
+            loader = getattr(agent_manager.stt, "_load_model", None)
+            if callable(loader):
+                await _asyncio.to_thread(loader)
+                logger.info("STT provider warmed up")
+        except Exception as exc:  # pragma: no cover - 预热失败不应拖死启动
+            logger.warning("STT warmup failed: %s", exc)
+
+    _asyncio.create_task(_warmup_stt())
+
     yield
 
     # ── Shutdown ────────────────────────────────────────────

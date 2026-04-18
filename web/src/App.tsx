@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useCamera } from './hooks/useCamera';
 import { useDetection } from './hooks/useDetection';
+import { useAgentLifecycle } from './hooks/useAgentLifecycle';
 import { loadLabelMap, loadProducts } from './services/productService';
 import { YoloDetectionService } from './services/yoloDetectionService';
 import { CONFIG } from './config';
@@ -45,6 +46,9 @@ export default function App() {
     enabled: ready,
     service: yoloService,
   });
+
+  // 商品匹配 → 自动创建 / 销毁后端 agent；DeepSeek + Whisper 接入点。
+  useAgentLifecycle();
 
   // 1) 先加载 label_mapping，再据此拉取所有定制商品 JSON
   useEffect(() => {
