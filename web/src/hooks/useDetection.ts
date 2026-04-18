@@ -33,6 +33,7 @@ export function useDetection({
 
   const {
     transition,
+    setAllDetections,
     setCurrentDetection,
     setCurrentProduct,
     products,
@@ -56,6 +57,7 @@ export function useDetection({
 
     try {
       const detections = await detectionService.current.detect(frame);
+      setAllDetections(detections);
       const primary = pickPrimaryDetection(detections);
 
       if (primary) {
@@ -121,6 +123,7 @@ export function useDetection({
     products,
     state,
     transition,
+    setAllDetections,
     setCurrentDetection,
     setCurrentProduct,
     resetInteraction,

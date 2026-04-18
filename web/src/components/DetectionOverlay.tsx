@@ -4,6 +4,11 @@ import { useLongPress } from '../hooks/useLongPress';
 import { CONFIG } from '../config';
 import { BoundingBox } from '../types/detection';
 
+const BOX_COLORS = [
+  '#22d3ee', '#a78bfa', '#34d399', '#fb7185', '#fbbf24', '#60a5fa',
+  '#f472b6', '#818cf8', '#2dd4bf', '#fb923c',
+];
+
 interface DetectionOverlayProps {
   videoDimensions: { width: number; height: number };
   containerSize: { width: number; height: number };
@@ -13,7 +18,7 @@ export function DetectionOverlay({
   videoDimensions,
   containerSize,
 }: DetectionOverlayProps) {
-  const { currentDetection, currentProduct, state, transition } = useAppStore();
+  const { allDetections, currentDetection, currentProduct, state, transition } = useAppStore();
 
   const showQR = state === 'QRCodeVisible' || state === 'InfoPanelOpen' ||
     state === 'VoiceRecording' || state === 'VoiceProcessing' || state === 'AnswerDisplayed';
@@ -26,50 +31,61 @@ export function DetectionOverlay({
     },
   });
 
-  // Convert detection bbox (model coords) to screen coords
-  const screenBox = useMemo(() => {
+  // Convert all detections to screen coords
+  const screenDetections = useMemo(() => {
+    if (videoDimensions.width === 0) return [];
+    return allDetections.map((d) => ({
+      ...d,
+      screenBox: toScreenCoords(d.bbox, videoDimensions, containerSize),
+    }));
+  }, [allDetections, videoDimensions, containerSize]);
+
+  // Primary detection screen box (for QR positioning)
+  const primaryScreenBox = useMemo(() => {
     if (!currentDetection) return null;
-    return toScreenCoords(
-      currentDetection.bbox,
-      videoDimensions,
-      containerSize
-    );
+    return toScreenCoords(currentDetection.bbox, videoDimensions, containerSize);
   }, [currentDetection, videoDimensions, containerSize]);
 
-  // QR position: right side of detection box, with edge avoidance
+  // QR position: right side of primary detection box
   const qrPos = useMemo(() => {
-    if (!screenBox) return null;
-    return computeQRPosition(screenBox, containerSize, CONFIG.qrCodeSize);
-  }, [screenBox, containerSize]);
-
-  if (!currentDetection || !screenBox) return null;
-
-  const showBox = state !== 'Idle' && state !== 'Lost';
+    if (!primaryScreenBox) return null;
+    return computeQRPosition(primaryScreenBox, containerSize, CONFIG.qrCodeSize);
+  }, [primaryScreenBox, containerSize]);
 
   return (
     <div className="absolute inset-0 pointer-events-none">
-      {/* Detection bounding box */}
-      {showBox && (
-        <div
-          className="detection-box absolute transition-all duration-150 ease-out"
-          style={{
-            left: screenBox.x,
-            top: screenBox.y,
-            width: screenBox.width,
-            height: screenBox.height,
-          }}
-        >
-          {/* Class label */}
-          <div className="absolute -top-7 left-0 px-2 py-0.5 bg-ar-primary/90 text-black text-xs font-bold rounded">
-            {currentDetection.className}
-            <span className="ml-1 opacity-70">
-              {Math.round(currentDetection.confidence * 100)}%
-            </span>
+      {/* All detection bounding boxes */}
+      {screenDetections.map((d, i) => {
+        const color = BOX_COLORS[i % BOX_COLORS.length];
+        const isPrimary = currentDetection && d.classId === currentDetection.classId;
+        const box = d.screenBox;
+        return (
+          <div
+            key={`${d.classId}-${i}`}
+            className="absolute transition-all duration-100 ease-out"
+            style={{
+              left: box.x,
+              top: box.y,
+              width: box.width,
+              height: box.height,
+              border: `2px solid ${color}`,
+              boxShadow: isPrimary ? `0 0 12px ${color}88` : 'none',
+            }}
+          >
+            <div
+              className="absolute -top-6 left-0 px-1.5 py-0.5 text-xs font-semibold rounded whitespace-nowrap"
+              style={{ backgroundColor: `${color}dd`, color: '#0f172a' }}
+            >
+              {d.className}
+              <span className="ml-1 opacity-70">
+                {Math.round(d.confidence * 100)}%
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })}
 
-      {/* QR Code / 种草码 */}
+      {/* QR Code / 种草码 (only for matched product) */}
       {showQR && qrPos && currentProduct && (
         <div
           className="absolute pointer-events-auto animate-fade-in"

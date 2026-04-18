@@ -1,14 +1,18 @@
 import { create } from 'zustand';
 import { AppState } from '../types/state';
 import { Product, ClassMapping } from '../types/product';
-import { TrackedObject } from '../types/detection';
+import { DetectionResult, TrackedObject } from '../types/detection';
 
 interface AppStore {
   // State machine
   state: AppState;
   transition: (next: AppState) => void;
 
-  // Current tracked detection
+  // All raw detections from current frame
+  allDetections: DetectionResult[];
+  setAllDetections: (d: DetectionResult[]) => void;
+
+  // Current tracked detection (primary / highest confidence)
   currentDetection: TrackedObject | null;
   setCurrentDetection: (d: TrackedObject | null) => void;
 
@@ -49,6 +53,9 @@ export const useAppStore = create<AppStore>((set) => ({
       console.log(`[state] ${s.state} → ${next}`);
       return { state: next };
     }),
+
+  allDetections: [],
+  setAllDetections: (d) => set({ allDetections: d }),
 
   currentDetection: null,
   setCurrentDetection: (d) => set({ currentDetection: d }),
