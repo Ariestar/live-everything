@@ -3,7 +3,7 @@ import {
   AutoModel,
   AutoProcessor,
   RawImage,
-} from '@huggingface/transformers';
+} from '@xenova/transformers';
 import type { DetectionResult, DetectionService } from '../types/detection';
 
 /**
@@ -49,6 +49,13 @@ export type YoloOnnxVariant = 'quantized' | 'fp16';
 
 type LoadedModel = Awaited<ReturnType<typeof AutoModel.from_pretrained>>;
 type LoadedProcessor = Awaited<ReturnType<typeof AutoProcessor.from_pretrained>>;
+type ProcessorWithFeatureExtractor = LoadedProcessor & {
+  feature_extractor?: {
+    size?: {
+      shortest_edge?: number;
+    };
+  };
+};
 
 /** `[xmin, ymin, xmax, ymax, score, classId]`（坐标在 reshaped 空间内） */
 export type YoloPrediction = [number, number, number, number, number, number];
@@ -63,6 +70,16 @@ export interface RawDetectionFrame {
   /** 已按 threshold 过滤过的高层结果；若只需原始 predictions 请用 `predictions`。 */
   results: DetectionResult[];
   threshold: number;
+}
+
+function createRawImageFromCanvas(canvas: HTMLCanvasElement) {
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) {
+    throw new Error('[yolo] 无法从 canvas 获取 2D 上下文');
+  }
+  const { width, height } = canvas;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  return new RawImage(imageData.data, width, height, 4);
 }
 
 function iterPredictionRows(raw: unknown): [number, number, number, number, number, number][] {
@@ -115,13 +132,7 @@ export class YoloDetectionService implements DetectionService {
   }
 
   setProcessorShortestEdge(shortestEdge: number) {
-    const ip = this.processor?.image_processor as
-      | { size?: { shortest_edge?: number } }
-      | undefined;
-    if (ip?.size) ip.size.shortest_edge = shortestEdge;
-    const fe = this.processor?.feature_extractor as
-      | { size?: { shortest_edge?: number } }
-      | undefined;
+    const fe = (this.processor as ProcessorWithFeatureExtractor | null)?.feature_extractor;
     if (fe?.size) fe.size.shortest_edge = shortestEdge;
   }
 
@@ -130,7 +141,6 @@ export class YoloDetectionService implements DetectionService {
 
     this.initPromise = (async () => {
       configureTransformersEnv();
-      const dtype = this.onnxVariant === 'fp16' ? 'fp16' : 'q8';
       /**
        * 不主动指定 `device`，让 Transformers.js 走 wasm backend（已通过
        * `env.backends.onnx.wasm.proxy = true` 放到 Worker）。对 q8/fp16 权重
@@ -139,7 +149,7 @@ export class YoloDetectionService implements DetectionService {
       this.model = await AutoModel.from_pretrained(LOCAL_MODEL_ID, {
         local_files_only: true,
         model_file_name: 'model',
-        dtype,
+        quantized: this.onnxVariant === 'quantized',
       });
       this.processor = await AutoProcessor.from_pretrained(LOCAL_MODEL_ID, {
         local_files_only: true,
@@ -157,7 +167,7 @@ export class YoloDetectionService implements DetectionService {
 
   /** 避免 ImageData 拷贝，供实时页面使用 */
   async detectFromCanvas(canvas: HTMLCanvasElement): Promise<DetectionResult[]> {
-    const img = RawImage.fromCanvas(canvas);
+    const img = createRawImageFromCanvas(canvas);
     const { results } = await this.runRaw(img);
     return results;
   }
@@ -167,7 +177,7 @@ export class YoloDetectionService implements DetectionService {
    * 与 `reshaped_input_sizes`（[width, height]），供调用方按原站百分比公式绘制。
    */
   async detectRaw(canvas: HTMLCanvasElement): Promise<RawDetectionFrame> {
-    const img = RawImage.fromCanvas(canvas);
+    const img = createRawImageFromCanvas(canvas);
     return this.runRaw(img);
   }
 
