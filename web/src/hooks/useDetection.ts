@@ -33,6 +33,15 @@ export function useDetection({
   const detectionService = useRef<DetectionService>(
     service ?? new StubDetectionService()
   );
+
+  // Keep ref in sync when the prop changes (e.g. YOLO service replaces stub)
+  useEffect(() => {
+    if (service && service !== detectionService.current) {
+      detectionService.current.dispose();
+      detectionService.current = service;
+    }
+  }, [service]);
+
   const trackedRef = useRef<TrackedObject | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const frameCountRef = useRef(0);

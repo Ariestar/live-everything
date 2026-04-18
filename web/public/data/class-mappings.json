@@ -1,1 +1,12 @@
-[]
+[
+  { "model_class_id": "bottle",      "model_class_name": "bottle",      "product_id": "bottle_001",   "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "wine glass",  "model_class_name": "wine glass",  "product_id": "cup_001",      "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "cup",         "model_class_name": "cup",         "product_id": "cup_001",      "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "laptop",      "model_class_name": "laptop",      "product_id": "laptop_001",   "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "cell phone",  "model_class_name": "cell phone",  "product_id": "phone_001",    "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "keyboard",    "model_class_name": "keyboard",    "product_id": "keyboard_001", "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "mouse",       "model_class_name": "mouse",       "product_id": "mouse_001",    "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "remote",      "model_class_name": "remote",      "product_id": "mouse_001",    "confidence_threshold": 0.5, "tracking_enabled": true },
+  { "model_class_id": "backpack",    "model_class_name": "backpack",    "product_id": "backpack_001", "confidence_threshold": 0.4, "tracking_enabled": true },
+  { "model_class_id": "handbag",     "model_class_name": "handbag",     "product_id": "backpack_001", "confidence_threshold": 0.5, "tracking_enabled": true }
+]
