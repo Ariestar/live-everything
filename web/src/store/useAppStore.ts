@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { AppState } from '../types/state';
-import { Product, ClassMapping } from '../types/product';
+import { Product, LabelMap } from '../types/product';
 import { DetectionResult, TrackedObject } from '../types/detection';
 
 interface AppStore {
@@ -23,8 +23,9 @@ interface AppStore {
   // Data
   products: Product[];
   setProducts: (p: Product[]) => void;
-  classMappings: ClassMapping[];
-  setClassMappings: (m: ClassMapping[]) => void;
+  /** COCO id → label_mapping entry（见 data/knowledge-base/config/label_mapping.json） */
+  labelMap: LabelMap;
+  setLabelMap: (m: LabelMap) => void;
 
   // Voice Q&A
   voiceText: string;
@@ -46,7 +47,6 @@ interface AppStore {
   cameraError: string | null;
   setCameraError: (e: string | null) => void;
 
-  // Reset interaction state
   resetInteraction: () => void;
 }
 
@@ -54,7 +54,7 @@ export const useAppStore = create<AppStore>((set) => ({
   state: 'Idle',
   transition: (next) =>
     set((s) => {
-      console.log(`[state] ${s.state} → ${next}`);
+      if (s.state !== next) console.log(`[state] ${s.state} → ${next}`);
       return { state: next };
     }),
 
@@ -69,16 +69,15 @@ export const useAppStore = create<AppStore>((set) => ({
 
   products: [],
   setProducts: (p) => set({ products: p }),
-  classMappings: [],
-  setClassMappings: (m) => set({ classMappings: m }),
+  labelMap: {},
+  setLabelMap: (m) => set({ labelMap: m }),
 
   voiceText: '',
   setVoiceText: (t) => set({ voiceText: t }),
   currentAnswer: '',
   setCurrentAnswer: (a) => set({ currentAnswer: a }),
   qaHistory: [],
-  addQA: (q, a) =>
-    set((s) => ({ qaHistory: [...s.qaHistory, { q, a }] })),
+  addQA: (q, a) => set((s) => ({ qaHistory: [...s.qaHistory, { q, a }] })),
 
   modelStatus: 'idle',
   setModelStatus: (s) => set({ modelStatus: s }),

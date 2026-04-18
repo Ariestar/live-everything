@@ -3,7 +3,7 @@ import {
   AutoModel,
   AutoProcessor,
   RawImage,
-} from '@xenova/transformers';
+} from '@huggingface/transformers';
 import type { DetectionResult, DetectionService } from '../types/detection';
 
 /**
@@ -146,10 +146,12 @@ export class YoloDetectionService implements DetectionService {
        * `env.backends.onnx.wasm.proxy = true` 放到 Worker）。对 q8/fp16 权重
        * 这通常比 webgpu 更稳定、更快，且不会阻塞主线程渲染 —— 与原站一致。
        */
+      // @huggingface/transformers 用 `dtype` 指定权重精度：'q8' → model_quantized.onnx, 'fp16' → model_fp16.onnx
+      const dtype = this.onnxVariant === 'fp16' ? 'fp16' : 'q8';
       this.model = await AutoModel.from_pretrained(LOCAL_MODEL_ID, {
         local_files_only: true,
         model_file_name: 'model',
-        quantized: this.onnxVariant === 'quantized',
+        dtype,
       });
       this.processor = await AutoProcessor.from_pretrained(LOCAL_MODEL_ID, {
         local_files_only: true,

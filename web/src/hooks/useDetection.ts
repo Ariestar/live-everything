@@ -2,7 +2,10 @@ import { useRef, useCallback, useEffect } from 'react';
 import { TrackedObject, DetectionService } from '../types/detection';
 import { CONFIG } from '../config';
 import { useAppStore } from '../store/useAppStore';
-import { matchDetectionToProduct, pickPrimaryDetection } from '../services/matchingService';
+import {
+  matchDetectionToProduct,
+  pickPrimaryDetection,
+} from '../services/matchingService';
 
 interface UseDetectionOptions {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -19,10 +22,9 @@ export function useDetection({
 }: UseDetectionOptions) {
   const detectionService = useRef<DetectionService>(service);
 
-  // Keep ref in sync if the service instance changes
   useEffect(() => {
     if (service !== detectionService.current) {
-      detectionService.current.dispose();
+      detectionService.current?.dispose?.();
       detectionService.current = service;
     }
   }, [service]);
@@ -40,7 +42,7 @@ export function useDetection({
     setCurrentProduct,
     setModelStatus,
     products,
-    classMappings,
+    labelMap,
     state,
     resetInteraction,
   } = useAppStore();
@@ -63,7 +65,7 @@ export function useDetection({
     try {
       const detections = await detectionService.current.detect(frame);
       setAllDetections(detections);
-      const primary = pickPrimaryDetection(detections);
+      const primary = pickPrimaryDetection(detections, labelMap, products);
 
       if (primary) {
         const prev = trackedRef.current;
@@ -72,25 +74,27 @@ export function useDetection({
         const tracked: TrackedObject = {
           ...primary,
           framesSinceLastSeen: 0,
-          stableFrameCount: isSame ? (prev!.stableFrameCount + 1) : 1,
-          // Smooth bbox position
-          bbox: prev && isSame
-            ? smoothBBox(prev.bbox, primary.bbox, CONFIG.smoothingFactor)
-            : primary.bbox,
+          stableFrameCount: isSame ? prev!.stableFrameCount + 1 : 1,
+          bbox:
+            prev && isSame
+              ? smoothBBox(prev.bbox, primary.bbox, CONFIG.smoothingFactor)
+              : primary.bbox,
         };
 
         trackedRef.current = tracked;
         setCurrentDetection(tracked);
 
         if (tracked.stableFrameCount >= CONFIG.stableFrameThreshold) {
-          const product = matchDetectionToProduct(primary, classMappings, products);
+          const product = matchDetectionToProduct(primary, labelMap, products);
           if (product) {
             setCurrentProduct(product);
             if (state === 'Idle' || state === 'Detecting') {
               transition('Matched');
-              // Auto-show QR code after match
-              setTimeout(() => transition('QRCodeVisible'), 300);
+              setTimeout(() => transition('QRCodeVisible'), 250);
             }
+          } else {
+            setCurrentProduct(null);
+            if (state === 'Idle') transition('Detecting');
           }
         } else if (state === 'Idle') {
           transition('Detecting');
@@ -98,7 +102,6 @@ export function useDetection({
 
         frameCountRef.current = 0;
       } else {
-        // No detection
         frameCountRef.current++;
         if (trackedRef.current) {
           trackedRef.current = {
@@ -114,26 +117,29 @@ export function useDetection({
             setTimeout(() => {
               trackedRef.current = null;
               resetInteraction();
-            }, 1000);
+            }, 700);
           }
         }
       }
     } catch (e) {
-      console.error('[detection] Frame processing error:', e instanceof Error ? e.message : e, e);
+      console.error(
+        '[detection] Frame processing error:',
+        e instanceof Error ? e.message : e,
+        e
+      );
     } finally {
       busyRef.current = false;
     }
   }, [
     videoRef,
     canvasRef,
-    classMappings,
+    labelMap,
     products,
     state,
     transition,
     setAllDetections,
     setCurrentDetection,
     setCurrentProduct,
-    setModelStatus,
     resetInteraction,
   ]);
 
@@ -149,25 +155,31 @@ export function useDetection({
     }
 
     setModelStatus('loading');
-    detectionService.current.initialize().then(() => {
-      if (cancelled) return;
-      setModelStatus('ready');
-      console.log('[detection] Model ready, starting detection loop');
-      intervalRef.current = setInterval(processFrame, CONFIG.detectionIntervalMs);
-    }).catch((e) => {
-      setModelStatus('error');
-      console.error('[detection] Model initialization failed:', e);
-    });
+    detectionService.current
+      .initialize()
+      .then(() => {
+        if (cancelled) return;
+        setModelStatus('ready');
+        console.log('[detection] 模型就绪，启动检测循环');
+        intervalRef.current = setInterval(
+          processFrame,
+          CONFIG.detectionIntervalMs
+        );
+      })
+      .catch((e) => {
+        setModelStatus('error');
+        console.error('[detection] 模型初始化失败:', e);
+      });
 
     return () => {
       cancelled = true;
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [enabled, processFrame]);
+  }, [enabled, processFrame, setModelStatus]);
 
   return {
     setService: (s: DetectionService) => {
-      detectionService.current.dispose();
+      detectionService.current?.dispose?.();
       detectionService.current = s;
       s.initialize();
     },
