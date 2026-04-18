@@ -1,17 +1,18 @@
-"""REST API routes for agent management."""
+"""REST API routes for agent management and knowledge ingestion."""
 
-import base64
-from typing import Optional, List
+from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
-from pydantic import BaseModel
+from typing import List, Optional
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
+from pydantic import BaseModel, model_validator
 
 from ..core.agent_manager import AgentManager
+from ..core.knowledge_base import fallback_collection_id, semantic_collection_id
 from ..models.agent import AgentConfig
 
 router = APIRouter(prefix="/api", tags=["agents"])
 
-# Will be set by main.py on startup
 manager: AgentManager = None  # type: ignore
 
 
@@ -20,13 +21,20 @@ def set_manager(m: AgentManager) -> None:
     manager = m
 
 
-# ── Request / Response schemas ──────────────────────────────────
-
 class CreateAgentRequest(BaseModel):
-    product_id: str
+    product_id: str = ""
+    semantic_category_id: str = ""
+    object_label: str = ""
+    detection_id: Optional[int] = None
     system_prompt: Optional[str] = None
     max_history: int = 30
     temperature: float = 0.7
+
+    @model_validator(mode="after")
+    def validate_target(self):
+        if not any([self.product_id, self.semantic_category_id, self.object_label, self.detection_id is not None]):
+            raise ValueError("At least one knowledge target field is required (product_id, semantic_category_id, object_label, or detection_id)")
+        return self
 
 
 class AskRequest(BaseModel):
@@ -53,7 +61,35 @@ class AudioAskResponse(BaseModel):
     answer: str
 
 
-# ── Routes ──────────────────────────────────────────────────────
+class IngestProductRequest(BaseModel):
+    data: dict
+
+
+class IngestTextRequest(BaseModel):
+    product_id: str
+    text: str
+    source: str = "api"
+    category: str = "general"
+
+
+class RAGQueryRequest(BaseModel):
+    query: str
+    product_id: str = ""
+    semantic_category_id: str = ""
+    use_fallback: bool = False
+    top_k: int = 5
+
+    @model_validator(mode="after")
+    def validate_target(self):
+        if not any([self.product_id, self.semantic_category_id, self.use_fallback]):
+            raise ValueError("Need product_id, semantic_category_id, or use_fallback")
+        return self
+
+
+class ResolveLabelRequest(BaseModel):
+    detection_id: Optional[int] = None
+    label_en: str = ""
+
 
 @router.get("/health")
 async def health():
@@ -68,20 +104,44 @@ async def list_agents():
 @router.post("/agents")
 async def create_agent(req: CreateAgentRequest):
     try:
+        product_id = req.product_id
+        semantic_category_id = req.semantic_category_id
+        object_label = req.object_label
+
+        # Auto-resolve from detection_id or object_label via label mapping
+        if req.detection_id is not None or (object_label and not product_id and not semantic_category_id):
+            resolved = manager.resolve_detection_label(
+                detection_id=req.detection_id,
+                label_en=object_label,
+            )
+            product_id = product_id or resolved.get("product_id", "")
+            semantic_category_id = semantic_category_id or resolved.get("semantic_category_id", "")
+            object_label = object_label or resolved.get("en", "")
+
         cfg = AgentConfig(
-            product_id=req.product_id,
+            product_id=product_id,
+            semantic_category_id=semantic_category_id,
+            object_label=object_label,
             system_prompt=req.system_prompt or "",
             max_history=req.max_history,
             temperature=req.temperature,
         )
-        agent = manager.create_agent(req.product_id, cfg)
-        return {
-            "agent_id": agent.agent_id,
-            "product_id": agent.product_id,
-            "product_name": agent.product_name,
-        }
-    except RuntimeError as e:
-        raise HTTPException(status_code=429, detail=str(e))
+        agent = manager.create_agent(
+            product_id=product_id,
+            semantic_category_id=semantic_category_id,
+            object_label=object_label,
+            agent_config=cfg,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(status_code=429, detail=str(exc))
+
+    return {
+        "agent_id": agent.agent_id,
+        "product_id": agent.product_id,
+        "product_name": agent.product_name,
+        "semantic_category_id": agent.semantic_category_id,
+        "object_label": agent.object_label,
+    }
 
 
 @router.delete("/agents/{agent_id}")
@@ -96,15 +156,18 @@ async def get_agent(agent_id: str):
     agent = manager.get_agent(agent_id)
     if not agent:
         raise HTTPException(status_code=404, detail="Agent not found")
+
     return {
         "agent_id": agent.agent_id,
         "product_id": agent.product_id,
         "product_name": agent.product_name,
+        "semantic_category_id": agent.semantic_category_id,
+        "object_label": agent.object_label,
         "status": agent.status,
         "message_count": len(agent.history),
         "history": [
-            {"role": m.role, "content": m.content, "timestamp": m.timestamp}
-            for m in agent.history
+            {"role": msg.role, "content": msg.content, "timestamp": msg.timestamp}
+            for msg in agent.history
         ],
     }
 
@@ -156,80 +219,71 @@ async def list_knowledge():
     return {
         "products": manager.knowledge_store.list_products(),
         "count": manager.knowledge_store.count,
+        "rich_products": sorted(manager.rich_knowledge.products.keys()),
+        "semantic_categories": sorted(manager.rich_knowledge.semantic_categories.keys()),
+        "fallback_loaded": bool(manager.rich_knowledge.generic_fallback),
     }
 
 
 @router.post("/knowledge/inject")
 async def inject_knowledge_global(req: InjectKnowledgeRequest):
-    """Inject knowledge into global store (not bound to an agent)."""
-    pid = manager.knowledge_store.inject_from_dict(req.data)
-    if not pid:
+    product_id = manager.knowledge_store.inject_from_dict(req.data)
+    if not product_id:
         raise HTTPException(status_code=400, detail="Missing product_id in data")
-    return {"status": "injected", "product_id": pid}
-
-
-# ── RAG routes ──────────────────────────────────────────────────
-
-
-class IngestProductRequest(BaseModel):
-    data: dict
-
-
-class IngestTextRequest(BaseModel):
-    product_id: str
-    text: str
-    source: str = "api"
-    category: str = "general"
-
-
-class RAGQueryRequest(BaseModel):
-    product_id: str
-    query: str
-    top_k: int = 5
+    return {"status": "injected", "product_id": product_id}
 
 
 @router.post("/rag/ingest/product")
 async def rag_ingest_product(req: IngestProductRequest):
-    """Ingest a product JSON into the RAG vector store."""
     count = manager.ingest_product(req.data)
-    return {"status": "ingested", "chunks": count, "product_id": req.data.get("product_id")}
+    return {
+        "status": "ingested",
+        "chunks": count,
+        "product_id": req.data.get("product_id"),
+    }
 
 
 @router.post("/rag/ingest/text")
 async def rag_ingest_text(req: IngestTextRequest):
-    """Ingest raw text into a product's RAG collection."""
     count = manager.ingest_text(req.product_id, req.text, req.source, req.category)
     return {"status": "ingested", "chunks": count, "product_id": req.product_id}
 
 
 @router.post("/rag/ingest/reload")
 async def rag_ingest_reload():
-    """Re-scan and ingest the knowledge directory."""
+    manager.load_rich_knowledge_dir()
     result = manager.ingest_knowledge_dir()
     return {"status": "reloaded", **result}
 
 
 @router.post("/rag/query")
 async def rag_query(req: RAGQueryRequest):
-    """Query the RAG vector store directly (for debugging)."""
     if not manager.retriever:
         raise HTTPException(status_code=503, detail="RAG not enabled")
+
+    target_id = req.product_id
+    if req.semantic_category_id:
+        target_id = semantic_collection_id(req.semantic_category_id)
+    if req.use_fallback:
+        target_id = fallback_collection_id()
+
     results = manager.retriever.retrieve(
-        product_id=req.product_id,
+        product_id=target_id,
         query=req.query,
         top_k=req.top_k,
     )
     return {
-        "product_id": req.product_id,
+        "target_id": target_id,
         "query": req.query,
         "results": [
             {
-                "text": r.chunk_text,
-                "category": r.category,
-                "source": r.source,
-                "distance": r.distance,
+                "text": result.chunk_text,
+                "category": result.category,
+                "source": result.source,
+                "distance": result.distance,
+                "metadata": result.metadata,
             }
-            for r in results
+            for result in results
         ],
     }
 
@@ -240,3 +294,22 @@ async def rag_stats():
     if not manager.vector_store:
         return {"rag_enabled": False}
     return {"rag_enabled": True, **manager.vector_store.global_stats()}
+
+
+# ── Label mapping routes ────────────────────────────────────
+
+
+@router.get("/labels")
+async def list_labels():
+    """Get the full COCO-80 label mapping."""
+    mapping = manager.get_label_mapping()
+    return {"count": len(mapping), "labels": mapping}
+
+
+@router.post("/labels/resolve")
+async def resolve_label(req: ResolveLabelRequest):
+    """Resolve a detection ID or English label to knowledge target info."""
+    return manager.resolve_detection_label(
+        detection_id=req.detection_id,
+        label_en=req.label_en,
+    )

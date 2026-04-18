@@ -145,18 +145,42 @@ class Chunker:
                 source=pid, category="tagline", metadata=base_meta,
             ))
 
-        # Selling points
+        # one_line_hook / self_intro_short / self_intro_medium / story_monologue_90s
+        for field in ("one_line_hook", "self_intro_short", "self_intro_medium", "story_monologue_90s"):
+            val = data.get(field, "")
+            if val:
+                chunks.extend(self.chunk_text(
+                    f"商品「{pname}」{field}：{val}",
+                    source=pid, category="intro", metadata=base_meta,
+                ))
+
+        # Selling points (support both str list and dict list)
         points = data.get("selling_points", [])
         if points:
-            text = f"商品「{pname}」的核心卖点：\n" + "\n".join(f"- {p}" for p in points)
+            lines: List[str] = []
+            for p in points:
+                if isinstance(p, dict):
+                    title = p.get("title", "卖点")
+                    detail = p.get("detail", "")
+                    scene = p.get("scene_value", "")
+                    lines.append(f"- {title}：{detail} {scene}".strip())
+                else:
+                    lines.append(f"- {p}")
+            text = f"商品「{pname}」的核心卖点：\n" + "\n".join(lines)
             chunks.extend(self.chunk_text(
                 text, source=pid, category="selling_point", metadata=base_meta,
             ))
 
-        # Specs
+        # Specs (support both dict and list-of-dict)
         specs = data.get("specs", {})
         if specs:
-            text = f"商品「{pname}」的规格参数：\n" + "\n".join(f"- {k}：{v}" for k, v in specs.items())
+            if isinstance(specs, dict):
+                text = f"商品「{pname}」的规格参数：\n" + "\n".join(f"- {k}：{v}" for k, v in specs.items())
+            else:
+                text = f"商品「{pname}」的规格参数：\n" + "\n".join(
+                    f"- {s.get('name', '参数')}：{s.get('value', '')}" if isinstance(s, dict) else f"- {s}"
+                    for s in specs
+                )
             chunks.extend(self.chunk_text(
                 text, source=pid, category="spec", metadata=base_meta,
             ))
@@ -176,6 +200,29 @@ class Chunker:
             chunks.extend(self.chunk_text(
                 text, source=pid, category="use_case", metadata=base_meta,
             ))
+
+        # Limitations
+        for i, lim in enumerate(data.get("limitations", [])):
+            chunks.extend(self.chunk_text(
+                f"商品「{pname}」使用限制：{lim}",
+                source=pid, category="limitation", metadata=base_meta,
+            ))
+
+        # Care tips
+        tips = data.get("care_tips", [])
+        if tips:
+            text = f"商品「{pname}」使用建议：\n" + "\n".join(f"- {t}" for t in tips)
+            chunks.extend(self.chunk_text(
+                text, source=pid, category="care_tip", metadata=base_meta,
+            ))
+
+        # question_type_answers
+        for qtype, answer in data.get("question_type_answers", {}).items():
+            if answer:
+                chunks.extend(self.chunk_text(
+                    f"商品「{pname}」{qtype}类问题回答：{answer}",
+                    source=pid, category=f"qtype_{qtype}", metadata=base_meta,
+                ))
 
         # FAQ — each Q&A as a separate chunk for precise retrieval
         for i, faq in enumerate(data.get("faq", [])):
@@ -200,4 +247,65 @@ class Chunker:
             c.chunk_index = i
 
         logger.info("Chunked product '%s' into %d chunks", pid, len(chunks))
+        return chunks
+
+    def chunk_semantic_category(self, data: dict) -> List[Chunk]:
+        """Convert a semantic category dict into chunks for RAG retrieval."""
+        cat_id = data.get("semantic_category_id", "unknown")
+        display = data.get("display_name", cat_id)
+        chunks: List[Chunk] = []
+        meta = {"semantic_category_id": cat_id, "display_name": display}
+
+        # Category pitch
+        pitch = data.get("category_pitch", "")
+        if pitch:
+            chunks.extend(self.chunk_text(
+                f"类别「{display}」定位：{pitch}",
+                source=cat_id, category="category_pitch", metadata=meta,
+            ))
+
+        # Common roles, features, scenes
+        for field, label in [
+            ("common_roles", "常见角色"),
+            ("common_features", "常见特征"),
+            ("common_scenes", "常见场景"),
+            ("safe_claim_rules", "安全表达规则"),
+        ]:
+            items = data.get(field, [])
+            if items:
+                text = f"类别「{display}」{label}：\n" + "\n".join(f"- {it}" for it in items)
+                chunks.extend(self.chunk_text(
+                    text, source=cat_id, category=field, metadata=meta,
+                ))
+
+        # Generic answer templates
+        for qtype, answer in data.get("generic_answer_templates", {}).items():
+            if answer:
+                chunks.extend(self.chunk_text(
+                    f"类别「{display}」{qtype}类回答模板：{answer}",
+                    source=cat_id, category=f"template_{qtype}", metadata=meta,
+                ))
+
+        for i, c in enumerate(chunks):
+            c.chunk_index = i
+
+        logger.info("Chunked semantic category '%s' into %d chunks", cat_id, len(chunks))
+        return chunks
+
+    def chunk_fallback(self, data: dict) -> List[Chunk]:
+        """Convert fallback / generic_fallback dict into chunks."""
+        chunks: List[Chunk] = []
+        meta = {"type": "fallback"}
+
+        for qtype, answer in data.get("answer_templates", {}).items():
+            if answer:
+                chunks.extend(self.chunk_text(
+                    f"通用兜底{qtype}类回答：{answer}",
+                    source="generic_fallback", category=f"fallback_{qtype}", metadata=meta,
+                ))
+
+        for i, c in enumerate(chunks):
+            c.chunk_index = i
+
+        logger.info("Chunked fallback into %d chunks", len(chunks))
         return chunks

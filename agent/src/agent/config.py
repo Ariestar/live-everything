@@ -38,6 +38,16 @@ RAG_TOP_K = 5                 # number of chunks to retrieve
 RAG_SCORE_THRESHOLD = 1.5     # max L2 distance (lower = more similar)
 KNOWLEDGE_DIR = DATA_DIR / "knowledge"  # markdown/txt knowledge files
 
+# Rich Knowledge Base (structured JSON)
+KNOWLEDGE_BASE_DIR = BASE_DIR.parent / "data" / "knowledge-base"
+KB_CONFIG_DIR = KNOWLEDGE_BASE_DIR / "config"
+KB_CUSTOM_PRODUCTS_DIR = KNOWLEDGE_BASE_DIR / "products" / "custom"
+KB_GENERIC_PRODUCTS_DIR = KNOWLEDGE_BASE_DIR / "products" / "generic"
+KB_LABEL_MAPPING_FILE = KB_CONFIG_DIR / "label_mapping.json"
+KB_CATEGORIES_FILE = KB_CONFIG_DIR / "categories.json"
+KB_PERSONAS_FILE = KB_CONFIG_DIR / "personas.json"
+KB_CORE_FILE = KB_CONFIG_DIR / "core.json"
+
 # Server
 HOST = "0.0.0.0"
 PORT = 8000

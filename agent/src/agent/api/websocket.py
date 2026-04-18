@@ -63,19 +63,41 @@ async def websocket_endpoint(ws: WebSocket, agent_manager: AgentManager):
             # ── CREATE AGENT ────────────────────────────────────
             if msg_type == WSMessageType.CREATE_AGENT:
                 product_id = data.get("product_id", "")
-                if not product_id:
+                semantic_category_id = data.get("semantic_category_id", "")
+                object_label = data.get("object_label", "")
+                detection_id = data.get("detection_id")
+
+                # Auto-resolve from detection_id or object_label via label mapping
+                if detection_id is not None or (object_label and not product_id and not semantic_category_id):
+                    resolved = agent_manager.resolve_detection_label(
+                        detection_id=detection_id,
+                        label_en=object_label,
+                    )
+                    product_id = product_id or resolved.get("product_id", "")
+                    semantic_category_id = semantic_category_id or resolved.get("semantic_category_id", "")
+                    object_label = object_label or resolved.get("en", "")
+
+                if not any([product_id, semantic_category_id, object_label]):
                     await ws_manager.send(ws, WSMessage(
                         type=WSMessageType.AGENT_ERROR,
-                        error="Missing product_id",
+                        error="Missing knowledge target (product_id, semantic_category_id, object_label, or detection_id)",
                     ))
                     continue
                 try:
-                    agent = agent_manager.create_agent(product_id)
+                    agent = agent_manager.create_agent(
+                        product_id=product_id,
+                        semantic_category_id=semantic_category_id,
+                        object_label=object_label,
+                    )
                     await ws_manager.send(ws, WSMessage(
                         type=WSMessageType.AGENT_CREATED,
                         agent_id=agent.agent_id,
                         product_id=agent.product_id,
                         text=agent.product_name,
+                        data={
+                            "semantic_category_id": agent.semantic_category_id,
+                            "object_label": agent.object_label,
+                        },
                     ))
                 except RuntimeError as e:
                     await ws_manager.send(ws, WSMessage(

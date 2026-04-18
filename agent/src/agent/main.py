@@ -30,10 +30,19 @@ async def lifespan(app: FastAPI):
     loaded = agent_manager.knowledge_store.load_all_from_dir()
     logger.info("Loaded keyword knowledge for %d products: %s", len(loaded), loaded)
 
-    # Ingest into RAG vector store from knowledge/ directory
+    # Load rich knowledge base (core, categories, products, label mapping)
+    rich_summary = agent_manager.load_rich_knowledge_base()
+    logger.info("Rich KB: %s", rich_summary)
+
+    # Ingest into RAG vector store
     if config.RAG_ENABLED:
+        # Ingest from data/knowledge/ directory (legacy)
         rag_result = agent_manager.ingest_knowledge_dir()
-        logger.info("RAG ingestion: %s", rag_result)
+        logger.info("RAG ingestion (knowledge dir): %s", rag_result)
+
+        # Ingest structured rich KB (products, categories, fallback)
+        rich_rag = agent_manager.ingest_rich_kb()
+        logger.info("RAG ingestion (rich KB): %s", rich_rag)
 
     health = await agent_manager.health()
     logger.info("System health: %s", health)
