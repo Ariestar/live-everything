@@ -26,9 +26,14 @@ async def lifespan(app: FastAPI):
     # ── Startup ─────────────────────────────────────────────
     set_manager(agent_manager)
 
-    # Load knowledge from data/ directory
+    # Load keyword knowledge from data/ directory
     loaded = agent_manager.knowledge_store.load_all_from_dir()
-    logger.info("Loaded knowledge for %d products: %s", len(loaded), loaded)
+    logger.info("Loaded keyword knowledge for %d products: %s", len(loaded), loaded)
+
+    # Ingest into RAG vector store from knowledge/ directory
+    if config.RAG_ENABLED:
+        rag_result = agent_manager.ingest_knowledge_dir()
+        logger.info("RAG ingestion: %s", rag_result)
 
     health = await agent_manager.health()
     logger.info("System health: %s", health)

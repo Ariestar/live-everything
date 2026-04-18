@@ -166,3 +166,77 @@ async def inject_knowledge_global(req: InjectKnowledgeRequest):
     if not pid:
         raise HTTPException(status_code=400, detail="Missing product_id in data")
     return {"status": "injected", "product_id": pid}
+
+
+# ── RAG routes ──────────────────────────────────────────────────
+
+
+class IngestProductRequest(BaseModel):
+    data: dict
+
+
+class IngestTextRequest(BaseModel):
+    product_id: str
+    text: str
+    source: str = "api"
+    category: str = "general"
+
+
+class RAGQueryRequest(BaseModel):
+    product_id: str
+    query: str
+    top_k: int = 5
+
+
+@router.post("/rag/ingest/product")
+async def rag_ingest_product(req: IngestProductRequest):
+    """Ingest a product JSON into the RAG vector store."""
+    count = manager.ingest_product(req.data)
+    return {"status": "ingested", "chunks": count, "product_id": req.data.get("product_id")}
+
+
+@router.post("/rag/ingest/text")
+async def rag_ingest_text(req: IngestTextRequest):
+    """Ingest raw text into a product's RAG collection."""
+    count = manager.ingest_text(req.product_id, req.text, req.source, req.category)
+    return {"status": "ingested", "chunks": count, "product_id": req.product_id}
+
+
+@router.post("/rag/ingest/reload")
+async def rag_ingest_reload():
+    """Re-scan and ingest the knowledge directory."""
+    result = manager.ingest_knowledge_dir()
+    return {"status": "reloaded", **result}
+
+
+@router.post("/rag/query")
+async def rag_query(req: RAGQueryRequest):
+    """Query the RAG vector store directly (for debugging)."""
+    if not manager.retriever:
+        raise HTTPException(status_code=503, detail="RAG not enabled")
+    results = manager.retriever.retrieve(
+        product_id=req.product_id,
+        query=req.query,
+        top_k=req.top_k,
+    )
+    return {
+        "product_id": req.product_id,
+        "query": req.query,
+        "results": [
+            {
+                "text": r.chunk_text,
+                "category": r.category,
+                "source": r.source,
+                "distance": r.distance,
+            }
+            for r in results
+        ],
+    }
+
+
+@router.get("/rag/stats")
+async def rag_stats():
+    """Get RAG vector store statistics."""
+    if not manager.vector_store:
+        return {"rag_enabled": False}
+    return {"rag_enabled": True, **manager.vector_store.global_stats()}

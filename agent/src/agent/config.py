@@ -28,6 +28,16 @@ DEFAULT_SYSTEM_PROMPT = (
     "回答要简洁、准确、有吸引力。"
 )
 
+# RAG
+RAG_ENABLED = True
+RAG_PERSIST_DIR = BASE_DIR / "data" / ".chroma"  # ChromaDB persistence
+RAG_COLLECTION_PREFIX = "product_"
+RAG_CHUNK_SIZE = 300          # characters per chunk
+RAG_CHUNK_OVERLAP = 50        # overlap between chunks
+RAG_TOP_K = 5                 # number of chunks to retrieve
+RAG_SCORE_THRESHOLD = 1.5     # max L2 distance (lower = more similar)
+KNOWLEDGE_DIR = DATA_DIR / "knowledge"  # markdown/txt knowledge files
+
 # Server
 HOST = "0.0.0.0"
 PORT = 8000

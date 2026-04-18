@@ -12,6 +12,9 @@ from ..models.knowledge import ProductKnowledge
 from .knowledge_store import KnowledgeStore
 from .llm_provider import LLMProvider, create_llm_provider
 from .stt_provider import STTProvider, create_stt_provider
+from .rag.vector_store import VectorStore
+from .rag.retriever import RAGRetriever
+from .rag.ingestor import RAGIngestor
 from .. import config
 
 logger = logging.getLogger(__name__)
@@ -25,6 +28,17 @@ class AgentManager:
         self.knowledge_store = KnowledgeStore()
         self.llm: LLMProvider = create_llm_provider()
         self.stt: STTProvider = create_stt_provider()
+
+        # RAG system
+        if config.RAG_ENABLED:
+            self.vector_store = VectorStore()
+            self.retriever = RAGRetriever(self.vector_store)
+            self.ingestor = RAGIngestor(self.vector_store)
+            logger.info("RAG system initialized")
+        else:
+            self.vector_store = None
+            self.retriever = None
+            self.ingestor = None
 
     # ── Agent Lifecycle ─────────────────────────────────────────
 
@@ -107,10 +121,15 @@ class AgentManager:
         return True
 
     def inject_knowledge_from_dict(self, agent_id: str, data: dict) -> bool:
-        """Inject knowledge from raw product dict into a running agent."""
+        """Inject knowledge from raw product dict into a running agent.
+        Also ingests into RAG vector store for semantic search."""
         from ..models.knowledge import product_json_to_knowledge
         knowledge = product_json_to_knowledge(data)
-        return self.inject_knowledge(agent_id, knowledge)
+        ok = self.inject_knowledge(agent_id, knowledge)
+        # Also ingest into RAG
+        if ok and self.ingestor:
+            self.ingestor.ingest_product_json(data)
+        return ok
 
     # ── Single Agent Ask ────────────────────────────────────────
 
@@ -131,8 +150,16 @@ class AgentManager:
         )
         agent.add_message(user_msg)
 
-        # Build knowledge context
-        knowledge_ctx = agent.build_knowledge_context(query)
+        # Build knowledge context — prefer RAG, fallback to keyword search
+        knowledge_ctx = ""
+        if self.retriever:
+            knowledge_ctx = self.retriever.build_context(
+                product_id=agent.product_id,
+                product_name=agent.product_name,
+                query=query,
+            )
+        if not knowledge_ctx:
+            knowledge_ctx = agent.build_knowledge_context(query)
 
         # Generate answer via LLM
         answer = await self.llm.generate(
@@ -202,11 +229,36 @@ class AgentManager:
         answer = await self.ask(agent_id, text)
         return text, answer
 
+    # ── RAG ingestion helpers ──────────────────────────────────
+
+    def ingest_product(self, data: dict) -> int:
+        """Ingest a product dict into the RAG vector store.
+        Returns chunk count. Also loads into keyword knowledge store."""
+        pid = data.get("product_id", "")
+        if pid:
+            self.knowledge_store.inject_from_dict(data)
+        if self.ingestor:
+            return self.ingestor.ingest_product_json(data)
+        return 0
+
+    def ingest_text(self, product_id: str, text: str, source: str = "api", category: str = "general") -> int:
+        """Ingest raw text into a product's RAG collection."""
+        if self.ingestor:
+            return self.ingestor.ingest_raw_text(text, product_id, source, category)
+        return 0
+
+    def ingest_knowledge_dir(self) -> dict:
+        """Scan and ingest the knowledge directory."""
+        if self.ingestor:
+            return self.ingestor.ingest_directory()
+        return {"products": [], "total_chunks": 0}
+
     # ── Health ──────────────────────────────────────────────────
 
     async def health(self) -> dict:
         llm_ok = await self.llm.health_check()
         stt_ok = await self.stt.health_check()
+        rag_stats = self.vector_store.global_stats() if self.vector_store else None
         return {
             "agents": len(self._agents),
             "knowledge_products": self.knowledge_store.count,
@@ -214,4 +266,6 @@ class AgentManager:
             "llm_healthy": llm_ok,
             "stt_provider": config.STT_PROVIDER,
             "stt_healthy": stt_ok,
+            "rag_enabled": config.RAG_ENABLED,
+            "rag_stats": rag_stats,
         }
