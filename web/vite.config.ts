@@ -26,12 +26,14 @@ function attachModelsMiddleware(
 
     if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) return next();
 
+    const st = fs.statSync(abs);
     const ext = path.extname(abs);
     const ct =
       ext === '.json'
         ? 'application/json; charset=utf-8'
         : 'application/octet-stream';
     res.setHeader('Content-Type', ct);
+    res.setHeader('Content-Length', String(st.size));
     fs.createReadStream(abs).pipe(res);
   };
 

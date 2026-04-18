@@ -11,6 +11,8 @@ export interface DetectionResult {
   confidence: number;
   bbox: BoundingBox;
   trackingId?: string;
+  /** 模型原始数字类别 id（用于稳定配色等场景，可能为空） */
+  classIdNum?: number;
 }
 
 // Future AR upgrade fields

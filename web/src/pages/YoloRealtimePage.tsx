@@ -1,297 +1,353 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useCamera } from '../hooks/useCamera';
 import {
   YoloDetectionService,
-  type YoloModelFile,
+  type YoloOnnxVariant,
 } from '../services/yoloDetectionService';
-import type { DetectionResult } from '../types/detection';
 
-const COLORS = [
-  '#22d3ee',
-  '#a78bfa',
-  '#34d399',
-  '#fb7185',
-  '#fbbf24',
-  '#60a5fa',
+/**
+ * 1:1 复刻 Hugging Face Space `Xenova/video-object-detection`：
+ * - `<canvas>` 显示当前帧（video 不直接显示），保证"所见即所推理"。
+ * - 检测框用命令式 DOM 操作（`overlay.replaceChildren(...)`），**完全绕开 React**
+ *   ——避免每次推理完成都触发整页 reconcile 导致卡顿。
+ * - ONNX Runtime WASM backend 通过 `env.backends.onnx.wasm.proxy = true`
+ *   放到 Web Worker 里跑，不阻塞主线程 RAF。
+ * - 颜色表、标签格式、容器尺寸算法均与原站打包产物一致。
+ *
+ * 参考：https://huggingface.co/spaces/Xenova/video-object-detection/blob/main/assets/index-C0Q5FIv3.js
+ */
+
+/** 与原站 `COLOURS` 完全一致（20 色） */
+const COLOURS = [
+  '#EF4444',
+  '#4299E1',
+  '#059669',
+  '#FBBF24',
+  '#4B52B1',
+  '#7B3AC2',
+  '#ED507A',
+  '#1DD1A1',
+  '#F3873A',
+  '#4B5563',
+  '#DC2626',
+  '#1852B4',
+  '#18A35D',
+  '#F59E0B',
+  '#4059BE',
+  '#6027A5',
+  '#D63D60',
+  '#00AC9B',
+  '#E64A19',
+  '#272A34',
 ];
 
+const DEFAULT_MAX_W = 720;
+const DEFAULT_MAX_H = 405;
+
+function computeContainerSize(videoW: number, videoH: number) {
+  if (!videoW || !videoH) return { width: DEFAULT_MAX_W, height: DEFAULT_MAX_H };
+  const ratio = videoW / videoH;
+  const maxRatio = DEFAULT_MAX_W / DEFAULT_MAX_H;
+  if (ratio > maxRatio) {
+    return { width: DEFAULT_MAX_W, height: DEFAULT_MAX_W / ratio };
+  }
+  return { width: DEFAULT_MAX_H * ratio, height: DEFAULT_MAX_H };
+}
+
 export function YoloRealtimePage() {
-  const { videoRef, start, ready, error, dimensions } = useCamera();
-  const displayRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const statusRef = useRef<HTMLParagraphElement | null>(null);
+
   const serviceRef = useRef<YoloDetectionService | null>(null);
   const busyRef = useRef(false);
   const rafRef = useRef(0);
+  const prevTimeRef = useRef<number | undefined>(undefined);
 
-  const [modelStatus, setModelStatus] = useState<
-    'idle' | 'loading' | 'ready' | 'error'
-  >('idle');
-  const [modelError, setModelError] = useState<string | null>(null);
+  // 高频可变值用 ref，避免重启 RAF
+  const thresholdRef = useRef(0.25);
+  const shortestEdgeRef = useRef(128);
+
+  // 仅 UI 呈现用 state（低频）
   const [threshold, setThreshold] = useState(0.25);
-  const [shortestEdge, setShortestEdge] = useState(224);
-  const [modelFile, setModelFile] =
-    useState<YoloModelFile>('model_quantized.onnx');
-  const [fps, setFps] = useState(0);
-  const [lastDetections, setLastDetections] = useState<DetectionResult[]>([]);
+  const [shortestEdge, setShortestEdge] = useState(128);
+  const [onnxVariant, setOnnxVariant] = useState<YoloOnnxVariant>('quantized');
+  const [containerSize, setContainerSize] = useState({
+    width: DEFAULT_MAX_W,
+    height: DEFAULT_MAX_H,
+  });
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
-  useEffect(() => {
-    void start();
-  }, [start]);
+  // 命令式写入 status（避免 re-render）
+  const setStatusText = (t: string) => {
+    if (statusRef.current) statusRef.current.textContent = t;
+  };
 
+  // 1) 初始化模型
   useEffect(() => {
     const svc = new YoloDetectionService({
-      threshold,
-      modelFileName: modelFile,
+      threshold: thresholdRef.current,
+      onnxVariant,
     });
     serviceRef.current = svc;
-    setModelStatus('loading');
-    setModelError(null);
+    setStatusText('Loading model…');
     svc
       .initialize()
       .then(() => {
-        setModelStatus('ready');
-        svc.setProcessorShortestEdge(shortestEdge);
+        svc.setProcessorShortestEdge(shortestEdgeRef.current);
+        setStatusText('Ready');
       })
       .catch((e) => {
         console.error(e);
-        setModelStatus('error');
-        setModelError(e instanceof Error ? e.message : String(e));
+        setStatusText(e instanceof Error ? e.message : String(e));
       });
-    return () => svc.dispose();
-  }, [modelFile]);
+    return () => {
+      svc.dispose();
+      serviceRef.current = null;
+    };
+  }, [onnxVariant]);
 
+  // 2) 打开摄像头
   useEffect(() => {
+    let stream: MediaStream | null = null;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        if (!video || !canvas) return;
+        video.srcObject = stream;
+        await video.play();
+        const track = stream.getVideoTracks()[0];
+        const { width = 0, height = 0 } = track.getSettings();
+        canvas.width = width;
+        canvas.height = height;
+        setContainerSize(computeContainerSize(width, height));
+      } catch (e) {
+        setCameraError(e instanceof Error ? e.message : String(e));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
+
+  // 3) 滑块 → ref + 服务
+  useEffect(() => {
+    thresholdRef.current = threshold;
     serviceRef.current?.setThreshold(threshold);
   }, [threshold]);
 
   useEffect(() => {
-    if (modelStatus === 'ready') {
-      serviceRef.current?.setProcessorShortestEdge(shortestEdge);
-    }
-  }, [shortestEdge, modelStatus]);
+    shortestEdgeRef.current = shortestEdge;
+    serviceRef.current?.setProcessorShortestEdge(shortestEdge);
+  }, [shortestEdge]);
 
-  const drawDetections = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      detections: DetectionResult[]
-    ) => {
-      detections.forEach((d, i) => {
-        const c = COLORS[i % COLORS.length];
-        const { x, y, width, height } = d.bbox;
-        ctx.strokeStyle = c;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, width, height);
-        const label = `${d.className} ${(d.confidence * 100).toFixed(0)}%`;
-        ctx.font = '14px system-ui, sans-serif';
-        const tw = ctx.measureText(label).width;
-        const pad = 6;
-        const lh = 20;
-        ctx.fillStyle = `${c}cc`;
-        ctx.fillRect(x, y - lh, tw + pad * 2, lh);
-        ctx.fillStyle = '#0f172a';
-        ctx.fillText(label, x + pad, y - 5);
-      });
-    },
-    []
-  );
-
+  // 4) 主循环：与原站 updateCanvas 完全一致；**不触发任何 setState**
   useEffect(() => {
-    if (!ready || modelStatus !== 'ready') return;
-
     const video = videoRef.current;
-    const display = displayRef.current;
-    const svc = serviceRef.current;
-    if (!video || !display || !svc) return;
-
-    const ctx = display.getContext('2d');
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx) return;
-
-    let frames = 0;
-    let lastTick = performance.now();
 
     const tick = () => {
       rafRef.current = requestAnimationFrame(tick);
+      const w = canvas.width;
+      const h = canvas.height;
+      if (!w || !h) return;
 
-      const w = video.videoWidth;
-      const h = video.videoHeight;
-      if (!w || !h || busyRef.current) return;
-
-      busyRef.current = true;
-      display.width = w;
-      display.height = h;
+      // 每帧都画 video → canvas（纯 GPU 路径，便宜）
       ctx.drawImage(video, 0, 0, w, h);
 
-      void svc
-        .detectFromCanvas(display)
-        .then((dets) => {
-          setLastDetections(dets);
-          ctx.drawImage(video, 0, 0, w, h);
-          drawDetections(ctx, dets);
-        })
-        .catch((e) => console.error('[yolo frame]', e))
-        .finally(() => {
-          busyRef.current = false;
-          frames++;
-          const now = performance.now();
-          if (now - lastTick >= 1000) {
-            setFps(Math.round((frames * 1000) / (now - lastTick)));
-            frames = 0;
-            lastTick = now;
+      const svc = serviceRef.current;
+      if (!svc || busyRef.current) return;
+      busyRef.current = true;
+
+      void (async () => {
+        try {
+          const frame = await svc.detectRaw(canvas);
+          const overlay = overlayRef.current;
+          if (!overlay) return;
+
+          const [rw, rh] = frame.reshapedSize;
+          const th = frame.threshold;
+          const nodes: HTMLDivElement[] = [];
+          for (const [xmin, ymin, xmax, ymax, score, id] of frame.predictions) {
+            if (score < th) continue;
+            const color = COLOURS[id % COLOURS.length];
+            const label = frame.id2label[String(id)] ?? String(id);
+
+            const box = document.createElement('div');
+            box.className = 'bounding-box';
+            Object.assign(box.style, {
+              position: 'absolute',
+              boxSizing: 'border-box',
+              border: `solid 2px ${color}`,
+              left: `${(100 * xmin) / rw}%`,
+              top: `${(100 * ymin) / rh}%`,
+              width: `${(100 * (xmax - xmin)) / rw}%`,
+              height: `${(100 * (ymax - ymin)) / rh}%`,
+            } as CSSStyleDeclaration);
+
+            const tag = document.createElement('span');
+            tag.className = 'bounding-box-label';
+            tag.textContent = `${label} (${(100 * score).toFixed(2)}%)`;
+            Object.assign(tag.style, {
+              position: 'absolute',
+              color: '#fff',
+              fontSize: '12px',
+              margin: '-16px 0 0 -2px',
+              padding: '1px',
+              whiteSpace: 'nowrap',
+              backgroundColor: color,
+            } as CSSStyleDeclaration);
+
+            box.appendChild(tag);
+            nodes.push(box);
           }
-        });
+          // 一次性替换，避免多次 reflow
+          overlay.replaceChildren(...nodes);
+
+          if (prevTimeRef.current !== undefined) {
+            const fps = 1000 / (performance.now() - prevTimeRef.current);
+            setStatusText(`FPS: ${fps.toFixed(2)}`);
+          }
+          prevTimeRef.current = performance.now();
+        } catch (e) {
+          console.error('[yolo tick]', e);
+        } finally {
+          busyRef.current = false;
+        }
+      })();
     };
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [ready, modelStatus, drawDetections, videoRef]);
-
-  const aspect =
-    dimensions.width > 0 && dimensions.height > 0
-      ? `${dimensions.width} / ${dimensions.height}`
-      : '16 / 9';
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <header className="border-b border-white/10 bg-black/30 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-cyan-400/90">
-              Transformers.js · 实时目标检测
-            </p>
-            <h1 className="text-xl font-semibold text-white sm:text-2xl">
-              YOLOv9（本地 ONNX）+ 摄像头
-            </h1>
-            <p className="mt-1 text-sm text-slate-400">
-              模型来源{' '}
-              <a
-                className="text-cyan-400 underline decoration-cyan-400/40 underline-offset-2 hover:decoration-cyan-300"
-                href="https://huggingface.co/Xenova/yolov9-c_all"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Xenova/yolov9-c_all
-              </a>
-              ，效果参考{' '}
-              <a
-                className="text-cyan-400 underline decoration-cyan-400/40 underline-offset-2 hover:decoration-cyan-300"
-                href="https://huggingface.co/spaces/Xenova/video-object-detection"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Video Object Detection
-              </a>
-              。
-            </p>
-          </div>
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-cyan-500/10 hover:text-white"
-          >
-            返回 AR 讲解
-          </Link>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        <div className="mb-6 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur sm:grid-cols-2 lg:grid-cols-4">
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-slate-400">
-              置信度阈值（{threshold.toFixed(2)}）
-            </span>
-            <input
-              type="range"
-              min={0.05}
-              max={0.9}
-              step={0.05}
-              value={threshold}
-              onChange={(e) => setThreshold(Number(e.target.value))}
-              className="accent-cyan-400"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-slate-400">
-              输入最短边（{shortestEdge}px）
-            </span>
-            <input
-              type="range"
-              min={128}
-              max={640}
-              step={32}
-              value={shortestEdge}
-              onChange={(e) => setShortestEdge(Number(e.target.value))}
-              className="accent-cyan-400"
-            />
-          </label>
-          <label className="flex flex-col gap-2 text-sm">
-            <span className="text-slate-400">权重</span>
-            <select
-              value={modelFile}
-              onChange={(e) =>
-                setModelFile(e.target.value as YoloModelFile)
-              }
-              className="rounded-lg border border-white/15 bg-slate-950 px-3 py-2 text-slate-100 outline-none focus:border-cyan-400/60"
-            >
-              <option value="model_quantized.onnx">量化（更快）</option>
-              <option value="model_fp16.onnx">FP16（更准）</option>
-            </select>
-          </label>
-          <div className="flex flex-col justify-end gap-1 text-sm">
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-slate-300">
-              <span>
-                模型：{' '}
-                <strong className="text-white">
-                  {modelStatus === 'loading' && '加载中…'}
-                  {modelStatus === 'ready' && '就绪'}
-                  {modelStatus === 'error' && '失败'}
-                </strong>
-              </span>
-              <span>
-                推理 FPS：<strong className="text-cyan-300">{fps}</strong>
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              画面 {dimensions.width}×{dimensions.height} · 当前{' '}
-              {lastDetections.length} 个目标
-            </p>
-          </div>
-        </div>
-
-        {error && (
-          <div className="mb-4 rounded-xl border border-red-500/40 bg-red-950/40 px-4 py-3 text-sm text-red-200">
-            摄像头：{error}
-          </div>
-        )}
-        {modelError && (
-          <div className="mb-4 rounded-xl border border-red-500/40 bg-red-950/40 px-4 py-3 text-sm text-red-200">
-            模型：{modelError}
-          </div>
-        )}
-
-        <div
-          className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl shadow-cyan-950/20"
-          style={{ aspectRatio: aspect }}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-8 py-4 font-sans text-gray-900">
+      <h1 className="text-center text-xl font-semibold">
+        Transformers.js | Real-time object detection
+      </h1>
+      <h4 className="mt-2 text-center text-base font-normal text-gray-700">
+        Real-time object detection w/{' '}
+        <a
+          className="underline"
+          href="https://github.com/huggingface/transformers.js"
+          target="_blank"
+          rel="noreferrer"
         >
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="hidden"
+          🤗 Transformers.js
+        </a>
+      </h4>
+      <p className="mt-1 text-center text-sm text-gray-500">
+        Runs locally in your browser, powered by{' '}
+        <a
+          className="underline"
+          href="https://huggingface.co/Xenova/gelan-c_all"
+          target="_blank"
+          rel="noreferrer"
+        >
+          YOLOv9 (gelan-c)
+        </a>
+      </p>
+
+      <div id="controls" className="flex flex-wrap items-end gap-4 py-4">
+        <div className="text-center">
+          <label className="block text-sm text-gray-700">
+            Image size <span className="font-mono">({shortestEdge})</span>
+          </label>
+          <input
+            type="range"
+            min={128}
+            max={640}
+            step={32}
+            value={shortestEdge}
+            onChange={(e) => setShortestEdge(Number(e.target.value))}
+            className="mt-1 w-48 accent-gray-700"
           />
-          <canvas
-            ref={displayRef}
-            className="block h-full w-full object-contain"
-          />
-          {!ready && !error && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-              <div className="flex flex-col items-center gap-3">
-                <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
-                <p className="text-slate-300">正在请求摄像头…</p>
-              </div>
-            </div>
-          )}
         </div>
-      </main>
+        <div className="text-center">
+          <label className="block text-sm text-gray-700">
+            Threshold <span className="font-mono">({threshold.toFixed(2)})</span>
+          </label>
+          <input
+            type="range"
+            min={0.05}
+            max={0.9}
+            step={0.05}
+            value={threshold}
+            onChange={(e) => setThreshold(Number(e.target.value))}
+            className="mt-1 w-48 accent-gray-700"
+          />
+        </div>
+        <div className="text-center">
+          <span className="block text-sm text-gray-700">Weights</span>
+          <select
+            value={onnxVariant}
+            onChange={(e) => setOnnxVariant(e.target.value as YoloOnnxVariant)}
+            className="mt-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm"
+          >
+            <option value="quantized">Quantized (faster)</option>
+            <option value="fp16">FP16</option>
+          </select>
+        </div>
+      </div>
+
+      <p
+        id="status"
+        ref={statusRef}
+        className="my-2 min-h-[16px] text-center text-sm text-gray-600"
+      >
+        Loading model…
+      </p>
+      {cameraError && (
+        <p className="text-center text-sm text-red-600">Camera: {cameraError}</p>
+      )}
+
+      <div
+        id="container"
+        className="relative mt-4 max-h-full max-w-full overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-black"
+        style={{
+          width: `${containerSize.width}px`,
+          height: `${containerSize.height}px`,
+        }}
+      >
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="pointer-events-none absolute h-0 w-0 opacity-0"
+        />
+        <canvas
+          ref={canvasRef}
+          className="absolute left-0 top-0 h-full w-full"
+        />
+        <div
+          ref={overlayRef}
+          id="overlay"
+          className="pointer-events-none absolute left-0 top-0 h-full w-full"
+        />
+      </div>
+
+      <Link
+        to="/"
+        className="mt-6 text-sm text-gray-500 underline decoration-gray-400 hover:text-gray-800"
+      >
+        ← AR 商品讲解
+      </Link>
     </div>
   );
 }
