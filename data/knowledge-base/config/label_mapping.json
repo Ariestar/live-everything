@@ -68,7 +68,7 @@
     "63": { "en": "laptop",         "zh": "笔记本电脑", "baike_query": "笔记本电脑", "semantic_category_id": "computing_device",    "custom_product_id": null },
     "64": { "en": "mouse",          "zh": "鼠标",       "baike_query": "鼠标",       "semantic_category_id": "computing_device",    "custom_product_id": null },
     "65": { "en": "remote",         "zh": "遥控器",     "baike_query": "遥控器",     "semantic_category_id": "handheld_device",     "custom_product_id": null },
-    "66": { "en": "keyboard",       "zh": "键盘",       "baike_query": "键盘",       "semantic_category_id": "computing_device",    "custom_product_id": null },
+    "66": { "en": "keyboard",       "zh": "键盘",       "baike_query": "键盘",       "semantic_category_id": "computing_device",    "custom_product_id": "atk-leviathan-edge60-he-master" },
     "67": { "en": "cell phone",     "zh": "手机",       "baike_query": "手机",       "semantic_category_id": "handheld_device",     "custom_product_id": "apple-iphone-13" },
     "68": { "en": "microwave",      "zh": "微波炉",     "baike_query": "微波炉",     "semantic_category_id": "kitchen_appliance",   "custom_product_id": null },
     "69": { "en": "oven",           "zh": "烤箱",       "baike_query": "烤箱",       "semantic_category_id": "kitchen_appliance",   "custom_product_id": null },
