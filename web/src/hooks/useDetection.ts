@@ -30,6 +30,8 @@ export function useDetection({
   const trackedRef = useRef<TrackedObject | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const frameCountRef = useRef(0);
+  /** 防止前一帧推理未结束就启动新一帧，造成主线程排队卡顿 */
+  const busyRef = useRef(false);
 
   const {
     transition,
@@ -44,6 +46,7 @@ export function useDetection({
   } = useAppStore();
 
   const processFrame = useCallback(async () => {
+    if (busyRef.current) return;
     if (!videoRef.current || !canvasRef.current) return;
 
     const video = videoRef.current;
@@ -56,6 +59,7 @@ export function useDetection({
     ctx.drawImage(video, 0, 0);
     const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+    busyRef.current = true;
     try {
       const detections = await detectionService.current.detect(frame);
       setAllDetections(detections);
@@ -116,6 +120,8 @@ export function useDetection({
       }
     } catch (e) {
       console.error('[detection] Frame processing error:', e instanceof Error ? e.message : e, e);
+    } finally {
+      busyRef.current = false;
     }
   }, [
     videoRef,
@@ -135,6 +141,12 @@ export function useDetection({
     if (!enabled) return;
 
     let cancelled = false;
+
+    if (!detectionService.current) {
+      console.error('[detection] 缺少 DetectionService 实例，跳过初始化');
+      setModelStatus('error');
+      return;
+    }
 
     setModelStatus('loading');
     detectionService.current.initialize().then(() => {

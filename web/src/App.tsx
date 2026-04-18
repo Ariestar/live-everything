@@ -21,23 +21,25 @@ export default function App() {
     height: window.innerHeight,
   });
 
+  /**
+   * YOLO 是首页默认且唯一的检测服务（`Xenova/gelan-c_all`）。
+   * ONNX Runtime 通过 `env.backends.onnx.wasm.proxy = true` 放到 Web Worker，
+   * 不会阻塞主线程 → 摄像头画面保持流畅。
+   */
   const yoloService = useMemo(
     () =>
-      CONFIG.useYoloDetection
-        ? new YoloDetectionService({
-            threshold: CONFIG.yoloDetectionThreshold,
-            onnxVariant: CONFIG.yoloOnnxVariant,
-          })
-        : null,
+      new YoloDetectionService({
+        threshold: CONFIG.yoloDetectionThreshold,
+        onnxVariant: CONFIG.yoloOnnxVariant,
+      }),
     []
   );
 
-  // Initialize detection loop
   useDetection({
     videoRef,
     canvasRef,
     enabled: ready,
-    service: yoloService ?? undefined,
+    service: yoloService,
   });
 
   // Load product data on mount
