@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useCamera } from './hooks/useCamera';
 import { useDetection } from './hooks/useDetection';
 import { loadProducts, loadClassMappings } from './services/productService';
+import { YoloDetectionService } from './services/yoloDetectionService';
+import { CONFIG } from './config';
 import { CameraView } from './components/CameraView';
 import { DetectionOverlay } from './components/DetectionOverlay';
 import { InfoPanel } from './components/InfoPanel';
@@ -19,11 +21,23 @@ export default function App() {
     height: window.innerHeight,
   });
 
+  const yoloService = useMemo(
+    () =>
+      CONFIG.useYoloDetection
+        ? new YoloDetectionService({
+            threshold: CONFIG.yoloDetectionThreshold,
+            modelFileName: CONFIG.yoloModelFile,
+          })
+        : null,
+    []
+  );
+
   // Initialize detection loop
   useDetection({
     videoRef,
     canvasRef,
     enabled: ready,
+    service: yoloService ?? undefined,
   });
 
   // Load product data on mount

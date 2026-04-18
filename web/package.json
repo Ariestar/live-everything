@@ -9,10 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.1.0",
+    "lucide-react": "^0.372.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "zustand": "^4.5.5",
-    "lucide-react": "^0.372.0"
+    "react-router-dom": "^7.14.1",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.1",

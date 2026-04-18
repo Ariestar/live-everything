@@ -1,4 +1,5 @@
 import { Camera, CameraOff, Mic, MicOff, WifiOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { STATE_LABELS } from '../types/state';
 
@@ -44,6 +45,13 @@ export function StatusBar() {
           商品库: {products.length} 件
         </span>
       </div>
+
+      <Link
+        to="/detect"
+        className="ar-glass rounded-lg px-2.5 py-1.5 text-xs font-medium text-cyan-300/90 hover:text-cyan-200"
+      >
+        YOLO 检测
+      </Link>
 
       {/* Camera error */}
       {cameraError && (
