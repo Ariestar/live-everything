@@ -106,7 +106,7 @@ WEB_SEARCH_ENABLED=true                # RAG 命中弱时自动联网兜底（Du
 ### 2.3 启动服务
 
 ```powershell
-agent-server           # 等价于 uvicorn agent.main:app --reload --host 0.0.0.0 --port 8000
+agent-server           # 等价于 uvicorn agent.main:app --host 0.0.0.0 --port 8000
 ```
 
 启动日志的关键行：
@@ -184,7 +184,7 @@ npm run preview         # 本地预览 dist
 
 ## 6. 开发提示
 
-- 后端 `uvicorn --reload` 已开启，改 Python 源码自动重载；改 `.env` 不触发重载，需手动重启。
+- 后端默认关闭热重载；如需开发态自动重载，可在 `agent/.env` 里设 `SERVER_RELOAD=true`。改 `.env` 本身仍需手动重启。
 - 前端 Vite 提供 HMR，改 `.tsx / .ts / .css` 秒级热更。
 - `agent/.cache/failed_audio/` 里会留下识别失败的音频样本，定期清理即可（用 `.gitignore` 排除）。
-- `data/knowledge-base/` 是唯一的商品知识源：新增定制商品只需在 `products/custom/` 下放一个 `<product_id>.json`，并在 `config/label_mapping.json` 里把对应 COCO 标签映射过去，重启后端即生效（RAG 会重新摄入）。
+- `data/knowledge-base/` 是唯一的商品知识源：新增定制商品只需在 `products/custom/` 下放一个 `<product_id>.json`，并在 `config/label_mapping.json` 里把对应 COCO 标签映射过去。首次启动会自动摄入；已有 `.chroma` 数据时启动会跳过重复切片，需手动调用 `/rag/ingest/reload` 才会重新入库。

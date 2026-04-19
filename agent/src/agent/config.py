@@ -81,6 +81,7 @@ DEFAULT_SYSTEM_PROMPT = (
 RAG_ENABLED = _env_bool("RAG_ENABLED", True)
 RAG_PERSIST_DIR = DATA_DIR / ".chroma"
 RAG_COLLECTION_PREFIX = _env("RAG_COLLECTION_PREFIX", "product_")
+RAG_AUTO_INGEST_ON_STARTUP = _env_bool("RAG_AUTO_INGEST_ON_STARTUP", True)
 RAG_CHUNK_SIZE = _env_int("RAG_CHUNK_SIZE", 300)
 RAG_CHUNK_OVERLAP = _env_int("RAG_CHUNK_OVERLAP", 50)
 RAG_TOP_K = _env_int("RAG_TOP_K", 5)
@@ -106,4 +107,5 @@ WEB_SEARCH_TOP_K = _env_int("WEB_SEARCH_TOP_K", 3)
 # ── Server ──────────────────────────────────────────────────────
 HOST = _env("HOST", "0.0.0.0")
 PORT = _env_int("PORT", 8000)
+SERVER_RELOAD = _env_bool("SERVER_RELOAD", False)
 CORS_ORIGINS = [o for o in _env("CORS_ORIGINS", "*").split(",") if o.strip()]

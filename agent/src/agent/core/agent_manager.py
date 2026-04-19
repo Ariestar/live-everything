@@ -325,6 +325,16 @@ class AgentManager:
             return self.ingestor.ingest_rich_kb_from_files()
         return {"products": [], "categories": [], "fallbacks": [], "total_chunks": 0}
 
+    def should_ingest_rag_on_startup(self) -> tuple[bool, dict]:
+        """Only auto-ingest on startup when enabled and the persisted store is empty."""
+        if not self.vector_store:
+            return False, {"collections": 0, "total_chunks": 0, "details": []}
+
+        stats = self.vector_store.global_stats()
+        if not config.RAG_AUTO_INGEST_ON_STARTUP:
+            return False, stats
+        return stats.get("total_chunks", 0) == 0, stats
+
     # ── Rich Knowledge Base loading ──────────────────────────────
 
     def load_rich_knowledge_base(self) -> dict:

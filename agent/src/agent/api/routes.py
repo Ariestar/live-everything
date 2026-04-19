@@ -251,9 +251,17 @@ async def rag_ingest_text(req: IngestTextRequest):
 
 @router.post("/rag/ingest/reload")
 async def rag_ingest_reload():
-    manager.load_rich_knowledge_dir()
-    result = manager.ingest_knowledge_dir()
-    return {"status": "reloaded", **result}
+    loaded = manager.knowledge_store.load_all_from_dir()
+    rich_summary = manager.load_rich_knowledge_base()
+    knowledge_dir_result = manager.ingest_knowledge_dir()
+    rich_rag_result = manager.ingest_rich_kb()
+    return {
+        "status": "reloaded",
+        "loaded_keyword_products": loaded,
+        "rich_kb": rich_summary,
+        "knowledge_dir": knowledge_dir_result,
+        "rich_rag": rich_rag_result,
+    }
 
 
 @router.post("/rag/query")

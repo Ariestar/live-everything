@@ -1,0 +1,45 @@
+# ===== Dependencies =====
+node_modules/
+
+# ===== Build Output =====
+dist/
+build/
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.python-version
+agent/.venv/
+agent/venv/
+agent/.cache/
+
+# ===== Model Files =====
+models/*.pt
+models/Xenova/
+
+# ===== Environment =====
+.env
+.env.local
+.env.*.local
+agent/.env
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+agent/*.log
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Misc =====
+*.tsbuildinfo

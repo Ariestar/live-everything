@@ -36,13 +36,22 @@ async def lifespan(app: FastAPI):
 
     # Ingest into RAG vector store
     if config.RAG_ENABLED:
-        # Ingest from data/knowledge/ directory (legacy)
-        rag_result = agent_manager.ingest_knowledge_dir()
-        logger.info("RAG ingestion (knowledge dir): %s", rag_result)
+        should_ingest, rag_stats = agent_manager.should_ingest_rag_on_startup()
+        if should_ingest:
+            # Ingest from data/knowledge/ directory (legacy)
+            rag_result = agent_manager.ingest_knowledge_dir()
+            logger.info("RAG ingestion (knowledge dir): %s", rag_result)
 
-        # Ingest structured rich KB (products, categories, fallback)
-        rich_rag = agent_manager.ingest_rich_kb()
-        logger.info("RAG ingestion (rich KB): %s", rich_rag)
+            # Ingest structured rich KB (products, categories, fallback)
+            rich_rag = agent_manager.ingest_rich_kb()
+            logger.info("RAG ingestion (rich KB): %s", rich_rag)
+        else:
+            logger.info(
+                "Skipping RAG startup ingestion: auto=%s collections=%d total_chunks=%d",
+                config.RAG_AUTO_INGEST_ON_STARTUP,
+                rag_stats.get("collections", 0),
+                rag_stats.get("total_chunks", 0),
+            )
 
     health = await agent_manager.health()
     logger.info("System health: %s", health)
@@ -94,7 +103,7 @@ def start():
         "agent.main:app",
         host=config.HOST,
         port=config.PORT,
-        reload=True,
+        reload=config.SERVER_RELOAD,
     )
 
 
